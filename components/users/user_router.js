@@ -1,43 +1,48 @@
 import {Router} from "express";
-import {connection} from "../../index.js";
+import {user_controller} from "./user_controller.js";
 
 const user_router = Router();
 
-user_router.post("/test", (req, res) => {
+user_router.post("/user/register", async (req, res) => {
     console.log(req.body);
     try {
-        const email_id = req.body.email_id;
-        const password = req.body.password;
-        const nickname = req.body.nickname;
-        const name = req.body.name;
-        const personal_info_agree = req.body.personal_info_agree;
-        const is_male = req.body.is_male;
-        const lol_id = req.body.lol_id; // controller
+        const { email_id, password, nickname, name, personal_info_agree, is_male, lol_id } = req.body;
 
-        const query = `INSERT INTO users VALUES ('${email_id}','${password}','${nickname}','${name}','${personal_info_agree}','user','${is_male}','${lol_id}',null,now(),now())`;
-        connection.query(query, (error, result) => {
-            if (error) {
-                throw new Error(error.message);
-            }
-            res.status(201).json("계정 생성 성공");
-        });
+        await user_controller.add_user({email_id, password, nickname, name, personal_info_agree, is_male, lol_id});
+        res.status(201).json("계정 생성 성공");
     } catch (error) {
         res.status(500).json({error});
     }
 });
 
-user_router.get("/test", (req, res) => {
+user_router.get("/userlist", async (req, res) => {
     try{
-        const query = "SELECT * FROM users";
-        connection.query(query, (error, result) => {
-            if (error) {
-            throw new Error(error.message);
-            }
-        res.status(200).json(result);
-        });
+        const result = await user_controller.get_users();
+        res.status(200).json(result);     
     } catch {
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
+
+user_router.put("/user/:email_id", async (req, res) => {
+    try {
+        const email_id = req.params.email_id;
+        const { password, nickname, name, lol_id } = req.body;
+        await user_controller.set_user({email_id, password, nickname, name, lol_id});
+        res.status(201).json("정보 수정 성공");
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+});
+
+user_router.put("/userdelete/:email_id", async (req,res) => {
+    try{
+        const email_id = req.params.email_id;
+        await user_controller.delete_user({email_id});
+        res.status(200).json("계정이 삭제되었습니다.");
+    } catch (error) {
+        res.status(500).json({error});
+    }
+});
 
 export { user_router };
