@@ -1,5 +1,5 @@
 import express from "express";
-import { user_router } from "./users/user_router.js";
+import { userController } from "./users/userController.js";
 
 const app = express();
 
@@ -14,6 +14,6 @@ app.get("/", (req, res) => {
     res.send("데이터 분석 프로젝트 8팀 API 입니다.");
   });
 
-app.use(user_router);
+app.use(userController);
 
 export {app};

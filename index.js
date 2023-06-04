@@ -3,9 +3,9 @@ import mysql from 'mysql2';
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'user',
-  password: '1234',
-  database: 'test_db'
+  user: 'root',
+  password: 'java1234!',
+  database: 'Test'
 });
 
 connection.connect((err) => {
@@ -21,7 +21,7 @@ process.on('SIGINT', () => {
   process.exit();
 });
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(port,'포트에서 서버를 시작했어요');
