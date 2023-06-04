@@ -1,11 +1,14 @@
+import 'dotenv/config'
 import { app } from "./components/app.js";
 import mysql from 'mysql2';
 
+const port = process.env.SERVER_PORT || 3001;
+
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'java1234!',
-  database: 'Test'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE
 });
 
 connection.connect((err) => {
@@ -20,8 +23,6 @@ process.on('SIGINT', () => {
   connection.end();
   process.exit();
 });
-
-const port = 3001;
 
 app.listen(port, () => {
   console.log(port,'포트에서 서버를 시작했어요');
