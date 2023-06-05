@@ -4,7 +4,6 @@ const updateLolUser = `UPDATE lol_user SET level=?, \`rank\`=?, tier=?, wins=?, 
 const reportLolUser = `UPDATE lol_user SET report_count =?,manner_grade=?, updated_at=now() WHERE lol_id=? AND deleted_at IS NULL`;
 const deleteLolUser = `UPDATE lol_user SET deleted_at = now(), updated_at = now() WHERE lol_id = ?`;
 
-
 export default {
   insertLolUser,
   selectLolUser,
