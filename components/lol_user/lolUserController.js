@@ -8,7 +8,7 @@ lolUserController.post("/loluser", async (req, res) => {
     try{
         const lolId = req.body.lolId;
         await lolUserService.addLolUser({lolId})
-        res.status(200).json("LOL 계정 정보 생성 성공");
+        res.status(201).json("LOL 계정 정보 생성 성공");
 
     } catch (error) {
         res.status(500).json({error});
@@ -28,10 +28,8 @@ lolUserController.get("/loluser/:lolId", async (req, res) => {
 lolUserController.get("/loluser/update/:lolId", async (req, res) => {
     try{
         const lolId = req.params.lolId;
-        console.log(lolId);
-        const updatedInfo = await lolUserService.setLolUser({lolId});
-        console.log(updatedInfo);
-        res.status(200).json("LOL 계정 정보 갱신 성공");
+        await lolUserService.setLolUser({lolId});
+        res.status(201).json("LOL 계정 정보 갱신 성공");
     } catch (error) {
         res.status(500).json({error});
     }
@@ -54,7 +52,7 @@ lolUserController.delete("/loluser/delete/:lolId", async (req, res) => {
     try{
         const lolId = req.params.lolId;
         await lolUserService.removeLolUser({lolId});
-        res.status(200).json("LOL 계정 삭제 성공");
+        res.status(201).json("LOL 계정 삭제 성공");
     } catch (error) {
         res.status(500).json({error});
     }
