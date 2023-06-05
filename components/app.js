@@ -1,5 +1,6 @@
 import express from "express";
 import { userController } from "./users/userController.js";
+import { lolUserController } from "./lol_user/lolUserController.js";
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.get("/", (req, res) => {
   });
 
 app.use(userController);
+app.use(lolUserController);
 
 export {app};
