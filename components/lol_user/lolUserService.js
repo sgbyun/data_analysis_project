@@ -20,18 +20,11 @@ class lolUserService {
   static async addLolUser(Loluser) {
     try {
       const summonerData = await getSummonerInfo(Loluser.lolId);
-      console.log("addUser ", summonerData);
       const leagueData = await getLeagueData(summonerData.id);
-      let rank = null;
-      let tier = "unranked";
-      let wins = null;
-      let losses = null;
-      if (leagueData !== undefined) {
-        rank = leagueData.rank;
-        tier = leagueData.tier;
-        wins = leagueData.wins;
-        losses = leagueData.losses;
-      }
+      const rank = leagueData?.rank || null;
+      const tier = leagueData?.tier || "unranked";
+      const wins = leagueData?.wins || null;
+      const losses = leagueData?.losses || null;
       const query = lolUserModel.insertLolUser;
       await connection
         .promise()
@@ -62,16 +55,10 @@ class lolUserService {
     try {
       const summonerData = await getSummonerInfo(Loluser.lolId);
       const leagueData = await getLeagueData(summonerData.id);
-      let rank = null;
-      let tier = null;
-      let wins = null;
-      let losses = null;
-      if (leagueData !== undefined) {
-        rank = leagueData.rank;
-        tier = leagueData.tier;
-        wins = leagueData.wins;
-        losses = leagueData.losses;
-      }
+      const rank = leagueData?.rank || null;
+      const tier = leagueData?.tier || "unranked";
+      const wins = leagueData?.wins || null;
+      const losses = leagueData?.losses || null;
       const query = lolUserModel.updateLolUser;
       await connection
         .promise()
