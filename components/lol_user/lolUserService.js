@@ -1,31 +1,29 @@
 import { connection } from "../../index.js";
 import lolUserModel from "./lolUserModel.js";
-import axios from "axios";
+import { getSummonerInfo, getLeagueData } from "../utils/connectRiotApi.js";
 
 class lolUserService {
   static async addLolUser({ lolId }) {
     try {
-      const summonerInfoRequestUrl = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${lolId}?api_key=${process.env.RIOT_API_KEY}`;
-      const summonerData = await axios.get(summonerInfoRequestUrl);
-      const LeagueInfoRequestUrl = `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerData.data.id}?api_key=${process.env.RIOT_API_KEY}`;
-      const leagueData = await axios.get(LeagueInfoRequestUrl);
+      const summonerData = await getSummonerInfo(lolId);
+      console.log("addUser ", summonerData);
+      const leagueData = await getLeagueData(summonerData.id);
       let rank = null;
       let tier = "unranked";
       let wins = null;
       let losses = null;
-      if (leagueData.data[0] !== undefined) {
-        rank = leagueData.data[0].rank;
-        tier = leagueData.data[0].tier;
-        wins = leagueData.data[0].wins;
-        losses = leagueData.data[0].losses;
+      if (leagueData !== undefined) {
+        rank = leagueData.rank;
+        tier = leagueData.tier;
+        wins = leagueData.wins;
+        losses = leagueData.losses;
       }
       const query = lolUserModel.insertLolUser;
       await connection
         .promise()
         .query(query, [
           lolId,
-          summonerData.data.id,
-          summonerData.data.summonerLevel,
+          summonerData.summonerLevel,
           rank,
           tier,
           wins,
@@ -48,25 +46,23 @@ class lolUserService {
 
   static async setLolUser({ lolId }) {
     try {
-      const summonerInfoRequestUrl = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/${lolId}?api_key=${process.env.RIOT_API_KEY}`;
-      const summonerData = await axios.get(summonerInfoRequestUrl);
-      const LeagueInfoRequestUrl = `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerData.data.id}?api_key=${process.env.RIOT_API_KEY}`;
-      const leagueData = await axios.get(LeagueInfoRequestUrl);
+      const summonerData = await getSummonerInfo.getSummonerInfo(lolId);
+      const leagueData = await getLeagueData(summonerData.id);
       let rank = null;
       let tier = null;
       let wins = null;
       let losses = null;
-      if (leagueData.data[0] !== undefined) {
-        rank = leagueData.data[0].rank;
-        tier = leagueData.data[0].tier;
-        wins = leagueData.data[0].wins;
-        losses = leagueData.data[0].losses;
+      if (leagueData !== undefined) {
+        rank = leagueData.rank;
+        tier = leagueData.tier;
+        wins = leagueData.wins;
+        losses = leagueData.losses;
       }
       const query = lolUserModel.updateLolUser;
       await connection
         .promise()
         .query(query, [
-          summonerData.data.summonerLevel,
+          summonerData.summonerLevel,
           rank,
           tier,
           wins,
