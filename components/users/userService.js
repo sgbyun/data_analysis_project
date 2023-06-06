@@ -1,11 +1,23 @@
 import { connection } from "../../index.js";
-import userModel from '../users/userModel.js';
+import userModel from "../users/userModel.js";
+import { User } from "./User.js";
 
 class userService {
-  static async addUser({ emailId, password, nickname, name, personalInfoAgree, grant, isMale, lolId }) {
+  static async addUser(user) {
     try {
       const query = userModel.insertUser;
-      await connection.promise().query(query, [emailId, password, nickname, name, personalInfoAgree, grant, isMale, lolId]);
+      await connection
+        .promise()
+        .query(query, [
+          user.emailId,
+          user.password,
+          user.nickname,
+          user.name,
+          user.personalInfoAgree,
+          user.grant,
+          user.isMale,
+          user.lolId,
+        ]);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -15,16 +27,36 @@ class userService {
     try {
       const query = userModel.selectUser;
       const result = await connection.promise().query(query);
+      return result[0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async getUserOne({ emailId }) {
+    try {
+      const query = userModel.selectUserOne;
+      const result = await connection.promise().query(query, [emailId]);
       return result[0][0];
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  static async setUser({ emailId, password, nickname, name, isMale, lolId }) {
+  static async setUser(user) {
     try {
+      console.log("Service user", user);
       const query = userModel.updateUser;
-      await connection.promise().query(query, [password, nickname, name, isMale, lolId, emailId]);
+      await connection
+        .promise()
+        .query(query, [
+          user.password,
+          user.nickname,
+          user.name,
+          user.isMale,
+          user.lolId,
+          user.emailId,
+        ]);
     } catch (error) {
       throw new Error(error.message);
     }
