@@ -1,4 +1,4 @@
-class User {
+class LolUser {
   constructor(
     lolId,
     reportCount,
@@ -116,4 +116,4 @@ class User {
   }
 }
 
-module.exports = User;
+export { LolUser };
