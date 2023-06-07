@@ -4,23 +4,23 @@ import { User } from "./User.js";
 
 class userService {
   static async addUser(user) {
-    try {
-      const query = userModel.insertUser;
-      await connection
-        .promise()
-        .query(query, [
-          user.emailId,
-          user.password,
-          user.nickname,
-          user.name,
-          user.personalInfoAgree,
-          user.grant,
-          user.isMale,
-          user.lolId,
-        ]);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+    // try {
+    const query = userModel.insertUser;
+    await connection
+      .promise()
+      .query(query, [
+        user.emailId,
+        user.password,
+        user.nickname,
+        user.name,
+        user.personalInfoAgree,
+        user.grant,
+        user.isMale,
+        user.lolId,
+      ]);
+    // } catch (error) {
+    //   throw new Error(error.message);
+    // }
   }
 
   static async getUsers() {
@@ -66,6 +66,21 @@ class userService {
     try {
       const query = userModel.deleteUser;
       await connection.promise().query(query, [emailId]);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  static async loginUser({ emailId, password }) {
+    try {
+      const user = await userModel.getUserOne({ emailId });
+
+      if (user) {
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (isPasswordValid) {
+          const token = jwt.sign({ emailId: user.emailId }, "secret_key");
+          return token;
+        }
+      }
     } catch (error) {
       throw new Error(error.message);
     }
