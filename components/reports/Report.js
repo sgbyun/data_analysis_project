@@ -1,5 +1,3 @@
-const User = require("../users/User.js");
-
 class Report {
   constructor(
     id,
@@ -13,7 +11,7 @@ class Report {
     updatedAt
   ) {
     this._id = id;
-    this._userId = User.emailId; // user 테이블의 emailId와 연결하도록 수정필요
+    this._userId = userId;
     this._attackerId = attackerId;
     this._status = status;
     this._content = content;
@@ -92,4 +90,4 @@ class Report {
   }
 }
 
-module.exports = Report;
+export { Report };
