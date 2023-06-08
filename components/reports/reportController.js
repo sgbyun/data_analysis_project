@@ -1,33 +1,63 @@
 import { Router } from "express";
-import { reportModel } from "../report/reportModel";
+import { reportService } from "./reports/reportService.js";
+import { Report, ReportImg } from "./reports/Report.js";
+import { login_required } from "./middlewares/login_required.js";
+import jwt from "jsonwebtoken";
 
-const reportRouter = Router();
+const reportController = Router();
+const multer = require("multer");
+reportController.use(login_required);
 
-// 신고 등록
-reportRouter.post("/report/register", async (req, res, next) => {
-  try {
-    const { id, userId, attackerId, content } = req.body;
-
-    const newReport = await reportModel.addReport({
-      id,
-      userId,
-      attackerId,
-      content,
-    });
-
-    if (newReport.errMessage) {
-      throw new Error(newReport.errMessage);
-    }
-    return res.status(201).json(newReport);
-  } catch (error) {
-    next(error);
-  }
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "./components/reports/reported_img");
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
 });
 
+// 신고 등록
+reportController.post(
+  "/report/register",
+  upload.single("reportImg"),
+  async (req, res, next) => {
+    try {
+      const { attackerId, content, violenceAt } = req.body;
+      const reportImage = req.file;
+      const { mimetype, originalname, path } = reportImage;
+
+      const userId = req.currentUserId;
+      const abuseCategory = "카테고리 정보 임시";
+
+      const report = new Report(
+        userId,
+        attackerId,
+        content,
+        abuseCategory,
+        violenceAt
+      );
+
+      const reportImg = new ReportImg(reportId, path, originalname, mimetype);
+
+      const newReport = await reportService.addReport(report, reportImg);
+
+      if (newReport.errMessage) {
+        throw new Error(newReport.errMessage);
+      }
+      return res.status(201).json(newReport);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // 관리자 - 들어온 신고 조회
-reportRouter.get("/admin/report", async (req, res, next) => {
+reportController.get("/admin/report", async (req, res, next) => {
   try {
-    const reports = await reportModel.getAllReports();
+    const reports = await reportService.getAllReports();
 
     if (reports.errMessage) {
       throw new Error(reports.errMessage);
@@ -39,16 +69,18 @@ reportRouter.get("/admin/report", async (req, res, next) => {
 });
 
 // 관리자 - 신고처리 (신고 상태변경)
-reportRouter.patch("/admin/status", async (req, res, next) => {
+reportController.patch("/admin/status", async (req, res, next) => {
   try {
-    const { id, status } = req.body;
-    const updatedReport = await reportModel.updateReport(id, status);
+    const status = req.body;
+    const updatedReport = await reportService.updateReport({ status });
+
     if (updatedReport.errMessage) {
       throw new Error(updatedReport.errMessage);
     }
     return res.status(200).json(updatedReport);
+  } catch (error) {
     next(error);
   }
 });
 
-export { reportRouter };
+export { reportController };

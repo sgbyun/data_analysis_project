@@ -1,7 +1,7 @@
 class Report {
   constructor(
-    id,
-    userId,
+    reportId,
+    userId, // = emailId
     attackerId, // api에서 user 검색해서 일치하는지
     status,
     abuseCategory,
@@ -10,7 +10,7 @@ class Report {
     createdAt,
     updatedAt
   ) {
-    this._id = id;
+    this._reportId = reportId;
     this._userId = userId;
     this._attackerId = attackerId;
     this._status = status;
@@ -21,8 +21,8 @@ class Report {
     this._updatedAt = updatedAt;
   }
 
-  get id() {
-    return this._id;
+  get reportId() {
+    return this._reportId;
   }
 
   get userId() {
@@ -57,7 +57,7 @@ class Report {
     return this._updatedAt;
   }
 
-  set id(id) {
+  set reportId(reportId) {
     this._id = id;
   }
 
@@ -90,4 +90,67 @@ class Report {
   }
 }
 
-export { Report };
+class ReportImg {
+  constructor(
+    imgId,
+    reportId,
+    path,
+    originalName,
+    mimetype,
+    createdAt,
+    updatedAt
+  ) {
+    this._imgId = imgId;
+    this._reportId = reportId;
+    this._path = path;
+    this._originalName = originalName;
+    this._mimetype = mimetype;
+    this._createdAt = createdAt;
+    this._updatedAt = updatedAt;
+  }
+  get imgId() {
+    return this._imgId;
+  }
+  get reportId() {
+    return this._reportId;
+  }
+  get path() {
+    return this._path;
+  }
+  get originalName() {
+    return this._originalName;
+  }
+  get mimetype() {
+    return this._mimetype;
+  }
+  get createdAt() {
+    return this._createdAt;
+  }
+  get updatedAt() {
+    return this._updatedAt;
+  }
+
+  set imgId(imgId) {
+    this._imgId = imgId;
+  }
+  set reportId(reportId) {
+    this._reportId = reportId;
+  }
+  set path(path) {
+    this._path = path;
+  }
+  set originalName(originalName) {
+    this._originalName = originalName;
+  }
+  set mimetype(mimetype) {
+    this._mimetype = mimetype;
+  }
+  set createdAt(createdAt) {
+    this._createdAt = createdAt;
+  }
+  set updatedAt(updatedAt) {
+    this._updatedAt = updatedAt;
+  }
+}
+
+export { Report, ReportImg };
