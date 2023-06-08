@@ -3,6 +3,10 @@ import { userService } from "./userService.js";
 import { User } from "./User.js";
 import bcrypt from "bcrypt";
 import { login_required } from "../middlewares/login_required.js";
+import {
+  validateEmail,
+  validatePassword,
+} from "../middlewares/validationUtils.js";
 
 const userController = Router();
 
@@ -35,8 +39,19 @@ userController.post("/user/register", async (req, res) => {
       isMale,
       lolId,
     } = req.body;
-    const grant = "user";
 
+    if (!validateEmail(emailId)) {
+      return res
+        .status(400)
+        .json({ error: "유효한 이메일 주소 형식이 아닙니다." });
+    }
+
+    if (!validatePassword(password)) {
+      return res
+        .status(400)
+        .json({ error: "비밀번호는 최소 8자 이상이어야 합니다." });
+    }
+    const grant = "user";
     const user = new User(
       emailId,
       password,
@@ -47,9 +62,12 @@ userController.post("/user/register", async (req, res) => {
       isMale,
       lolId
     );
+
     const hashedPassword = await bcrypt.hash(user.password, 10);
+
     user.password = hashedPassword;
     console.log(user.password);
+
     await userService.addUser(user);
     res.status(201).json("계정 생성 성공");
   } catch (error) {
