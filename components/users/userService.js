@@ -1,26 +1,36 @@
 import { connection } from "../../index.js";
 import userModel from "../users/userModel.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "./User.js";
-
 class userService {
   static async addUser(user) {
-    // try {
-    const query = userModel.insertUser;
-    await connection
-      .promise()
-      .query(query, [
-        user.emailId,
-        user.password,
-        user.nickname,
-        user.name,
-        user.personalInfoAgree,
-        user.grant,
-        user.isMale,
-        user.lolId,
-      ]);
-    // } catch (error) {
-    //   throw new Error(error.message);
-    // }
+    try {
+      const query = userModel.insertUser;
+      await connection
+        .promise()
+        .query(query, [
+          user.emailId,
+          user.password,
+          user.nickname,
+          user.name,
+          user.personalInfoAgree,
+          user.grant,
+          user.isMale,
+          user.lolId,
+        ]);
+    } catch (error) {
+      if (
+        error.sqlState === "23000" &&
+        error.sqlMessage.includes("Duplicate entry")
+      ) {
+        throw new Error(
+          "이미 등록된 이메일입니다. 다른 이메일을 사용해주세요."
+        );
+      } else {
+        throw error; // 오류를 그대로 던져서 처리합니다.
+      }
+    }
   }
 
   static async getUsers() {
@@ -70,16 +80,25 @@ class userService {
       throw new Error(error.message);
     }
   }
+
   static async loginUser({ emailId, password }) {
     try {
-      const user = await userModel.getUserOne({ emailId });
+      const user = await userService.getUserOne({ emailId });
 
-      if (user) {
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (isPasswordValid) {
-          const token = jwt.sign({ emailId: user.emailId }, "secret_key");
-          return token;
-        }
+      if (!user) {
+        const errorMessage = "가입 내역이 없습니다. 다시 한 번 확인해 주세요.";
+        throw new Error(errorMessage);
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (isPasswordValid) {
+        const token = jwt.sign({ emailId: user.emailId }, "secret_key");
+        return token;
+      } else {
+        throw new Error(
+          "비밀번호가 일치하지 않습니다. 다시 한 번 확인해 주세요."
+        );
       }
     } catch (error) {
       throw new Error(error.message);

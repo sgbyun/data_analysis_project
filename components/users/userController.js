@@ -2,26 +2,21 @@ import { Router } from "express";
 import { userService } from "./userService.js";
 import { User } from "./User.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { login_required } from "../middlewares/login_required.js";
 
 const userController = Router();
 
 userController.post("/user/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    const user = await userService.getUserOne({ emailId });
+    const token = await userService.loginUser({ emailId, password });
 
-    if (user) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      console.log(password, user.password);
-      if (isPasswordValid) {
-        const token = jwt.sign({ emailId: user.emailId }, "secret_key");
-        res.status(200).json({ token, message: "로그인 되었습니다." });
-      } else {
-        res.status(401).json({ error: "비밀번호가 일치하지 않습니다." });
-      }
+    if (token) {
+      res.status(200).json({ token, message: "로그인 되었습니다." });
     } else {
-      res.status(401).json({ error: "유저가 없는 정보입니다." });
+      res.status(401).json({
+        error: "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",
+      });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -58,7 +53,11 @@ userController.post("/user/register", async (req, res) => {
     await userService.addUser(user);
     res.status(201).json("계정 생성 성공");
   } catch (error) {
-    res.status(500).json({ error });
+    if (error.message.includes("이미 등록된 이메일입니다.")) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error });
+    }
   }
 });
 
@@ -71,7 +70,7 @@ userController.get("/userlist", async (req, res) => {
   }
 });
 
-userController.get("/user/:emailId", async (req, res) => {
+userController.get("/user/:emailId", login_required, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const result = await userService.getUserOne({ emailId });
@@ -82,7 +81,7 @@ userController.get("/user/:emailId", async (req, res) => {
   }
 });
 
-userController.put("/user/:emailId", async (req, res) => {
+userController.put("/user/:emailId", login_required, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const { password, nickname, name, isMale, lolId } = req.body;
@@ -113,7 +112,7 @@ userController.put("/user/:emailId", async (req, res) => {
 });
 
 // 코치님 피드백
-userController.delete("/user/:emailId", async (req, res) => {
+userController.delete("/user/:emailId", login_required, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     await userService.removeUser({ emailId });
