@@ -91,9 +91,9 @@ class userService {
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
-
       if (isPasswordValid) {
-        const token = jwt.sign({ emailId: user.emailId }, "secret_key");
+        const secretKey = process.env.JWT_SECRET_KEY || "secret_key";
+        const token = jwt.sign({ emailId: user.email_id }, secretKey);
         return token;
       } else {
         throw new Error(

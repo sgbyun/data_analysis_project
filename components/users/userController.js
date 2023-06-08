@@ -61,7 +61,7 @@ userController.post("/user/register", async (req, res) => {
   }
 });
 
-userController.get("/userlist", async (req, res) => {
+userController.get("/userlist", login_required, async (req, res) => {
   try {
     const result = await userService.getUsers();
     res.status(200).json(result);
