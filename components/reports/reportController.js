@@ -5,38 +5,54 @@ import { login_required } from "./middlewares/login_required.js";
 import jwt from "jsonwebtoken";
 
 const reportController = Router();
+const multer = require("multer");
 reportController.use(login_required);
 
-// 신고 등록
-reportController.post("/report/register", async (req, res, next) => {
-  try {
-    const { attackerId, content, violenceAt } = req.body;
-    const reportImage = req.file;
-    const { mimetype, originalname, path } = reportImage;
-
-    const userId = req.currentUserId;
-    const abuseCategory = "카테고리 정보 임시";
-
-    const report = new Report(
-      userId,
-      attackerId,
-      content,
-      abuseCategory,
-      violenceAt
-    );
-
-    const reportImg = new ReportImg(reportId, path, originalname, mimetype);
-
-    const newReport = await reportService.addReport(report, reportImg);
-
-    if (newReport.errMessage) {
-      throw new Error(newReport.errMessage);
-    }
-    return res.status(201).json(newReport);
-  } catch (error) {
-    next(error);
-  }
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "./components/reports/reported_img");
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
 });
+
+// 신고 등록
+reportController.post(
+  "/report/register",
+  upload.single("reportImg"),
+  async (req, res, next) => {
+    try {
+      const { attackerId, content, violenceAt } = req.body;
+      const reportImage = req.file;
+      const { mimetype, originalname, path } = reportImage;
+
+      const userId = req.currentUserId;
+      const abuseCategory = "카테고리 정보 임시";
+
+      const report = new Report(
+        userId,
+        attackerId,
+        content,
+        abuseCategory,
+        violenceAt
+      );
+
+      const reportImg = new ReportImg(reportId, path, originalname, mimetype);
+
+      const newReport = await reportService.addReport(report, reportImg);
+
+      if (newReport.errMessage) {
+        throw new Error(newReport.errMessage);
+      }
+      return res.status(201).json(newReport);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // 관리자 - 들어온 신고 조회
 reportController.get("/admin/report", async (req, res, next) => {
