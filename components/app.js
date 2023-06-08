@@ -1,7 +1,7 @@
 import express from "express";
 import { userController } from "./users/userController.js";
 import { lolUserController } from "./lol_user/lolUserController.js";
-import { reportController } from "./report/reporttest.js";
+// import { reportController } from "./reports/reportController.js";
 import { statsController } from "./statistics/statisticsController.js";
 
 const app = express();
@@ -18,6 +18,6 @@ app.get("/", (req, res) => {
 
 app.use(userController);
 app.use(lolUserController);
-app.use(reportController);
+//app.use(reportController);
 app.use(statsController);
 export { app };
