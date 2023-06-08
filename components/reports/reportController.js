@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { reportService } from "./reports/reportService.js";
-import { Report, ReportImg } from "./reports/Report.js";
-import { login_required } from "./middlewares/login_required.js";
+import { Report, ReportImg } from "./Report.js";
+import { reportService } from "./reportService.js";
+import { login_required } from "../middlewares/login_required.js";
 import jwt from "jsonwebtoken";
 
 const reportController = Router();
-const multer = require("multer");
-reportController.use(login_required);
+import multer from "multer";
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -22,34 +21,33 @@ const upload = multer({
 // 신고 등록
 reportController.post(
   "/report/register",
-  upload.single("reportImg"),
+  upload.single("reportImage"),
+  login_required,
   async (req, res, next) => {
     try {
       const { attackerId, content, violenceAt } = req.body;
       const reportImage = req.file;
       const { mimetype, originalname, path } = reportImage;
-
-      const userId = req.currentUserId;
+      const userId = req.currentEmailId;
       const abuseCategory = "카테고리 정보 임시";
 
       const report = new Report(
+        null,
         userId,
         attackerId,
-        content,
+        null,
         abuseCategory,
+        content,
         violenceAt
       );
 
-      const reportImg = new ReportImg(reportId, path, originalname, mimetype);
+      const reportImg = new ReportImg(null, null, path, originalname, mimetype);
 
       const newReport = await reportService.addReport(report, reportImg);
 
-      if (newReport.errMessage) {
-        throw new Error(newReport.errMessage);
-      }
-      return res.status(201).json(newReport);
+      res.status(201).json("success");
     } catch (error) {
-      next(error);
+      res.status(500).json(error);
     }
   }
 );

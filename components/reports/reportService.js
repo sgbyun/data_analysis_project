@@ -1,35 +1,36 @@
 import { connection } from "../../index.js";
-import { Report, ReportImg } from "./reports/Report.js";
-import { reportModel } from "./reports/reportModel.js";
+import { Report, ReportImg } from "./Report.js";
+import reportModel from "./reportModel.js";
 
-connection.connect();
-
-class reportSerivce {
+class reportService {
   // 새로운 신고 생성
   static async addReport(report, reportImg) {
-    const reportValue = [
-      report.userId,
-      report.attackerId,
-      report.content,
-      report.abuseCategory,
-      report.violenceAt,
-    ];
+    try {
+      await connection
+        .promise()
+        .query(reportModel.insertReport, [
+          report.userId,
+          report.attackerId,
+          report.abuseCategory,
+          report.content,
+          report.violenceAt,
+        ]);
 
-    const addedReport = await connection
-      .promise()
-      .query(reportModel.insertReport(reportValue));
+      const reportId4img = await connection
+        .promise()
+        .query(reportModel.selectRecent, [report.userId]);
 
-    reportId4img = addedReport[0][0].id;
-
-    const reportImgValue = [
-      reportId4img,
-      reportImg.path,
-      reportImg.originalName,
-      reportImg.mimetype,
-    ];
-    await connection
-      .promise()
-      .query(reportModel.insertReportImg(reportImgValue));
+      await connection
+        .promise()
+        .query(reportModel.insertReportImg, [
+          reportId4img[0][0].id,
+          reportImg.path,
+          reportImg.originalName,
+          reportImg.mimetype,
+        ]);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   // 이메일 아이디로 신고목록 찾기 - 특정 유저의 누적된 report값 조회에 사용
@@ -38,7 +39,7 @@ class reportSerivce {
       const query = reportModel.selectByEmail;
       const result = await connection.promise().query(query, [userId]);
       return result[1][0];
-    } catch (err) {
+    } catch (error) {
       throw new Error(error.message);
     }
   }
@@ -56,7 +57,7 @@ class reportSerivce {
       const updatedReport = await connection
         .promise()
         .query(reportModel.updateReport, values);
-    } catch (err) {
+    } catch (error) {
       throw new Error(error.message);
     }
   }
@@ -68,7 +69,7 @@ class reportSerivce {
         .promise()
         .query(reportModel.selectById, [reportId]);
       return result[0][0];
-    } catch (err) {
+    } catch (error) {
       throw new Error(error.message);
     }
   }
@@ -79,10 +80,10 @@ class reportSerivce {
       const deletedReport = await connection
         .promise()
         .query(reportModel.deleteReport, [reportId]);
-    } catch (err) {
+    } catch (error) {
       throw new Error(error.message);
     }
   }
 }
 
-export { reportSerivce };
+export { reportService };
