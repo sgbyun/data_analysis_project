@@ -51,6 +51,7 @@ userController.post("/user/register", async (req, res) => {
         .status(400)
         .json({ error: "비밀번호는 최소 8자 이상이어야 합니다." });
     }
+
     const grant = "user";
     const user = new User(
       emailId,
