@@ -1,89 +1,87 @@
 import { connection } from "../../index.js";
+import { Report, ReportImg } from "./reports/Report.js";
+import { reportModel } from "./reports/reportModel.js";
 
 connection.connect();
 
 class reportSerivce {
   // 새로운 신고 생성
-  static async addReport({
-    // 신고 사진 report_photo
-    id,
-    userId,
-    status,
-    attackerId,
-    abuseCategory,
-    content,
-    violenceAt,
-    createdAt,
-    updatedAt,
-  }) {
-    const abuseCategory = ""; //
-
-    const values = [
-      id,
-      userId,
-      status,
-      attackerId,
-      abuseCategory,
-      content,
-      violenceAt,
-      createdAt,
-      updatedAt,
+  static async addReport(report, reportImg) {
+    const reportValue = [
+      report.userId,
+      report.attackerId,
+      report.content,
+      report.abuseCategory,
+      report.violenceAt,
     ];
 
-    // 유저와 신고 내역을 연결
-    const newReport = async () => {
-      try {
-        const addedReport = await connection
-          .promise()
-          .query(reportModel.insertReport(values));
-        const linkedReport = await connection
-          .promise()
-          .query(reportModel.userReport);
-        return linkedReport;
-      } catch (error) {
-        throw error;
-      }
-    };
-    return newReport;
+    const addedReport = await connection
+      .promise()
+      .query(reportModel.insertReport(reportValue));
+
+    reportId4img = addedReport[0][0].id;
+
+    const reportImgValue = [
+      reportId4img,
+      reportImg.path,
+      reportImg.originalName,
+      reportImg.mimetype,
+    ];
+    await connection
+      .promise()
+      .query(reportModel.insertReportImg(reportImgValue));
   }
 
   // 이메일 아이디로 신고목록 찾기 - 특정 유저의 누적된 report값 조회에 사용
-  static async getReportByEmail() {
-    const query = reportModel.selectByEmail;
-    const values = [userId];
-    const result = await connection.promise().query(query, values);
-    return result;
+  static async getReportByEmail({ userId }) {
+    try {
+      const query = reportModel.selectByEmail;
+      const result = await connection.promise().query(query, [userId]);
+      return result[1][0];
+    } catch (err) {
+      throw new Error(error.message);
+    }
   }
 
   // 전체 신고목록 조회
   static async getAllReports() {
-    const query = reportModel.selectReports;
-    const result = await connection.promise().query(query);
-    return result;
-  }
-
-  // 신고 아이디로 조회? (관리자)
-  static async getReportById() {
-    const query = reportModel.selectById;
-    const values = [id];
-    const result = await connection.promise().query(query, values);
-    return result;
-  }
-
-  // 신고 삭제하기? (관리자) - report id 기반
-  static async deleteReport() {
-    const query = reportModel.deleteReport;
-    const values = [id];
-    const deletedReport = await connection.promise().query(query, values);
-    return deletedReport;
+    const result = await connection.promise().query(reportModel.selectReports);
+    return result[0];
   }
 
   // 신고 상태 업데이트 (관리자, 신고 status 변경) - report id 기반
-  static async updateReport() {
-    const query = reportModel.updateReport;
-    const values = [status, id];
-    const updatedReport = await connection.promise().query(query, values);
-    return updatedReport;
+  static async updateReport({ report }) {
+    try {
+      const values = [report.status];
+      const updatedReport = await connection
+        .promise()
+        .query(reportModel.updateReport, values);
+    } catch (err) {
+      throw new Error(error.message);
+    }
+  }
+
+  // 신고 아이디로 조회 (관리자)
+  static async getReportById({ reportId }) {
+    try {
+      const result = await connection
+        .promise()
+        .query(reportModel.selectById, [reportId]);
+      return result[0][0];
+    } catch (err) {
+      throw new Error(error.message);
+    }
+  }
+
+  // 신고 삭제하기 (관리자) - report id 기반
+  static async deleteReport({ reportId }) {
+    try {
+      const deletedReport = await connection
+        .promise()
+        .query(reportModel.deleteReport, [reportId]);
+    } catch (err) {
+      throw new Error(error.message);
+    }
   }
 }
 
