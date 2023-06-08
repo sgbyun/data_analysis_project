@@ -1,3 +1,4 @@
 node_modules
 .env
 /upload
+google_api_key.json

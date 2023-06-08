@@ -4,6 +4,7 @@ import { userController } from "./users/userController.js";
 import { lolUserController } from "./lol_user/lolUserController.js";
 // import { reportController } from "./reports/reportController.js";
 import { statsController } from "./statistics/statisticsController.js";
+import { testController } from "./test/test.js";
 
 const app = express();
 
@@ -22,4 +23,5 @@ app.use(userController);
 app.use(lolUserController);
 //app.use(reportController);
 app.use(statsController);
+app.use(testController);
 export { app };

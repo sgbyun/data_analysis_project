@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Router } from "express";
 import { lolUserService } from "./lolUserService.js";
 import { LolUser } from "./lolUser.js";
+import { login_required } from "../middlewares/login_required.js";
 
 const lolUserController = Router();
 
@@ -50,29 +51,33 @@ lolUserController.get("/lolUser/update/:lolId", async (req, res) => {
   }
 });
 
-lolUserController.put("/lolUser/report/:lolId", async (req, res) => {
-  try {
-    const lolId = req.params.lolId;
-    const reportCount = req.body.report_count;
-    const mannerGrade = req.body.manner_grade;
-    const lolUser = await lolUserService.getLolUser({ lolId });
-    console.log("found user:", lolUser);
-    if (!lolUser) {
-      res.status(400).json("존재하지 않는 LOL 계정입니다.");
+lolUserController.put(
+  "/lolUser/report/:lolId",
+  login_required,
+  async (req, res) => {
+    try {
+      const lolId = req.params.lolId;
+      const reportCount = req.body.report_count;
+      const mannerGrade = req.body.manner_grade;
+      const lolUser = await lolUserService.getLolUser({ lolId });
+      console.log("found user:", lolUser);
+      if (!lolUser) {
+        res.status(400).json("존재하지 않는 LOL 계정입니다.");
+      }
+
+      const updatedLolUser = new LolUser(
+        lolUser.lol_id,
+        reportCount,
+        mannerGrade
+      );
+
+      await lolUserService.reportLolUser(updatedLolUser);
+      res.status(201).json("신고가 등록되었습니다.");
+    } catch (error) {
+      res.status(500).json({ error });
     }
-
-    const updatedLolUser = new LolUser(
-      lolUser.lol_id,
-      reportCount,
-      mannerGrade
-    );
-
-    await lolUserService.reportLolUser(updatedLolUser);
-    res.status(201).json("신고가 등록되었습니다.");
-  } catch (error) {
-    res.status(500).json({ error });
   }
-});
+);
 
 lolUserController.delete("/lolUser/delete/:lolId", async (req, res) => {
   try {
