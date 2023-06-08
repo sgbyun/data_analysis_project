@@ -18,7 +18,7 @@ reportRouter.post("/report/register", async (req, res, next) => {
     if (newReport.errMessage) {
       throw new Error(newReport.errMessage);
     }
-    return res.status(201).json();
+    return res.status(201).json(newReport);
   } catch (error) {
     next(error);
   }
@@ -32,7 +32,7 @@ reportRouter.get("/admin/report", async (req, res, next) => {
     if (reports.errMessage) {
       throw new Error(reports.errMessage);
     }
-    return res.status(200).json();
+    return res.status(200).json(reports);
   } catch (error) {
     next(error);
   }
@@ -46,8 +46,7 @@ reportRouter.patch("/admin/status", async (req, res, next) => {
     if (updatedReport.errMessage) {
       throw new Error(updatedReport.errMessage);
     }
-    return res.status(200).json();
-  } catch (error) {
+    return res.status(200).json(updatedReport);
     next(error);
   }
 });
