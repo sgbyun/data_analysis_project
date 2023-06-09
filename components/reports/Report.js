@@ -4,7 +4,6 @@ class Report {
     userId, // = emailId
     attackerId, // api에서 user 검색해서 일치하는지
     status,
-    abuseCategory,
     content,
     violenceAt,
     createdAt,
@@ -15,7 +14,6 @@ class Report {
     this._attackerId = attackerId;
     this._status = status;
     this._content = content;
-    this._abuseCategory = abuseCategory;
     this._violenceAt = violenceAt;
     this._createdAt = createdAt;
     this._updatedAt = updatedAt;
@@ -37,10 +35,6 @@ class Report {
     return this._status;
   }
 
-  get abuseCategory() {
-    return this._abuseCategory;
-  }
-
   get content() {
     return this._content;
   }
@@ -58,7 +52,7 @@ class Report {
   }
 
   set reportId(reportId) {
-    this._id = id;
+    this._id = reportId;
   }
 
   set userId(userId) {
@@ -71,10 +65,6 @@ class Report {
 
   set status(status) {
     this._status = status;
-  }
-
-  set abuseCategory(abuseCategory) {
-    this._abuseCategory = abuseCategory;
   }
 
   set violenceAt(violenceAt) {
