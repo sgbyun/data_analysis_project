@@ -1,12 +1,10 @@
 import { Router } from "express";
 import { Report, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
+import multer from "multer";
 import { login_required } from "../middlewares/login_required.js";
-import jwt from "jsonwebtoken";
 
 const reportController = Router();
-import multer from "multer";
-reportController.use(login_required);
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -22,6 +20,7 @@ const upload = multer({
 // 신고 등록
 reportController.post(
   "/report/register",
+  login_required,
   upload.single("reportImage"),
   async (req, res, next) => {
     try {
@@ -29,14 +28,13 @@ reportController.post(
       const reportImage = req.file;
       const { mimetype, originalname, path } = reportImage;
       const userId = req.currentEmailId;
-      const abuseCategory = "카테고리 정보 임시";
 
       const report = new Report(
         null,
         userId,
         attackerId,
         null,
-        abuseCategory,
+        null,
         content,
         violenceAt
       );
@@ -53,32 +51,40 @@ reportController.post(
 );
 
 // 관리자 - 들어온 신고 조회
-reportController.get("/admin/report", async (req, res, next) => {
-  try {
-    const reports = await reportService.getAllReports();
+reportController.get(
+  "/admin/report",
+  login_required,
+  async (req, res, next) => {
+    try {
+      const reports = await reportService.getAllReports();
 
-    if (reports.errMessage) {
-      throw new Error(reports.errMessage);
+      if (reports.errMessage) {
+        throw new Error(reports.errMessage);
+      }
+      return res.status(200).json(reports);
+    } catch (error) {
+      next(error);
     }
-    return res.status(200).json(reports);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // 관리자 - 신고처리 (신고 상태변경)
-reportController.patch("/admin/status", async (req, res, next) => {
-  try {
-    const status = req.body;
-    const updatedReport = await reportService.updateReport({ status });
+reportController.patch(
+  "/admin/status",
+  login_required,
+  async (req, res, next) => {
+    try {
+      const status = req.body;
+      const updatedReport = await reportService.updateReport({ status });
 
-    if (updatedReport.errMessage) {
-      throw new Error(updatedReport.errMessage);
+      if (updatedReport.errMessage) {
+        throw new Error(updatedReport.errMessage);
+      }
+      return res.status(200).json(updatedReport);
+    } catch (error) {
+      next(error);
     }
-    return res.status(200).json(updatedReport);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export { reportController };

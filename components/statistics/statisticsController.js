@@ -76,14 +76,32 @@ statsController.get("/stats/abuseCategoryRankByCnt", async (req, res) => {
 });
 
 // 가해자별로 가장 많이 신고된 언어폭력 종류
-statsController.get("/stats/abuseCntByAttackerUser", async (req, res) => {
+statsController.get(
+  "/stats/abuseCntByAttackerUser/:lolId",
+  async (req, res) => {
+    const lolId = req.params.lolId;
+    const abuseCntByAttackerUser =
+      await statisticsService.getAbuseCntByAttackerUser(lolId);
+    console.log(
+      "statsController abuseCntByAttackerUser : ",
+      abuseCntByAttackerUser
+    );
+    res.status(200).json(abuseCntByAttackerUser);
+  }
+);
+
+// 최근 한달간 욕설한 횟수
+statsController.get("/stats/basic/:lolId", async (req, res) => {
+  const lolId = req.params.lolId;
   const abuseCntByAttackerUser =
-    await statisticsService.getAbuseCntByAttackerUser();
-  console.log(
-    "statsController abuseCntByAttackerUser : ",
-    abuseCntByAttackerUser
-  );
-  res.status(200).json(abuseCntByAttackerUser);
+    await statisticsService.getAbuseCntByAttackerUser(lolId);
+  const abuseCntByMonth = await statisticsService.getAbuseCntByMonth(lolId);
+  const toReturn = {
+    category_name: abuseCntByAttackerUser[0]?.category_name,
+    score_count: abuseCntByMonth[0]?.score_count,
+  };
+  console.log(toReturn);
+  res.status(200).json(toReturn);
 });
 
 export { statsController };

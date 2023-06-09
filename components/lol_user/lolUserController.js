@@ -35,7 +35,13 @@ lolUserController.get("/lolUser/:lolId", async (req, res) => {
   try {
     const lolUser = new LolUser(req.params.lolId);
     const userInfo = await lolUserService.getLolUser(lolUser);
-    res.status(200).json(userInfo);
+    if (userInfo) {
+      res.status(200).json(userInfo);
+    } else {
+      await lolUserService.addLolUser(lolUser);
+      const userInfo = await lolUserService.getLolUser(lolUser);
+      res.status(201).json(userInfo);
+    }
   } catch (error) {
     res.status(500).json("존재하지 않는 LOL 계정입니다.");
   }

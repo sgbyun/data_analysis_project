@@ -106,16 +106,28 @@ class statisticsService {
   }
 
   // 가해자별로 가장 많이 신고된 언어폭력 종류
-  static async getAbuseCntByAttackerUser() {
+  static async getAbuseCntByAttackerUser(lolId) {
     const abuseCntByAttackerUser = (
       await connection
         .promise()
-        .query(statisticsModel.selectAbuseCntByAttackerUser)
+        .query(statisticsModel.selectAbuseCntByAttackerUser, [lolId])
     )[0];
 
     console.log(abuseCntByAttackerUser);
 
     return abuseCntByAttackerUser;
+  }
+  // 가해자별 최근 한달 사용한 언어폭력
+  static async getAbuseCntByMonth(lolId) {
+    const abuseCntByMonth = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectAbuseCntByMonth, [lolId])
+    )[0];
+
+    console.log(abuseCntByMonth);
+
+    return abuseCntByMonth;
   }
 }
 

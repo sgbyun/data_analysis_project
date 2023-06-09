@@ -16,7 +16,6 @@ class reportService {
         .query(reportModel.insertReport, [
           report.userId,
           report.attackerId,
-          report.abuseCategory,
           report.content,
           report.violenceAt,
         ]);

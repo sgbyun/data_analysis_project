@@ -73,16 +73,37 @@ GROUP BY abuse_category
 ORDER BY category_count DESC;
 `;
 // 가해자별로 가장 많이 신고된 언어폭력 종류
-const selectAbuseCntByAttackerUser = `SELECT attacker_id, abuse_category, COUNT(*) AS report_count
-FROM report
-GROUP BY attacker_id, abuse_category
-HAVING COUNT(*) = (
-  SELECT MAX(report_count)
-  FROM (
-    SELECT attacker_id, abuse_category, COUNT(*) AS report_count
-    FROM report
-    GROUP BY attacker_id, abuse_category
-  ) AS subquery
+// const selectAbuseCntByAttackerUser = `SELECT attacker_id, abuse_category, COUNT(*) AS report_count
+// FROM report
+// GROUP BY attacker_id, abuse_category
+// HAVING COUNT(*) = (
+//   SELECT MAX(report_count)
+//   FROM (
+//     SELECT attacker_id, abuse_category, COUNT(*) AS report_count
+//     FROM report
+//     GROUP BY attacker_id, abuse_category
+//   ) AS subquery
+// );
+// `;
+const selectAbuseCntByAttackerUser = `SELECT category_name
+FROM abuse_score
+WHERE report_id IN (
+  SELECT id AS report_id
+  FROM report
+  WHERE attacker_id = ?
+)
+GROUP BY category_name
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+`;
+
+const selectAbuseCntByMonth = `
+SELECT COUNT(*) AS score_count
+FROM abuse_score
+WHERE report_id IN (
+  SELECT id AS report_id
+  FROM report
+  WHERE attacker_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
 );
 `;
 
@@ -106,4 +127,5 @@ export default {
   selectLoluserCntByMannerGrade,
   selectAbuseCategoryRankByCnt,
   selectAbuseCntByAttackerUser,
+  selectAbuseCntByMonth,
 };
