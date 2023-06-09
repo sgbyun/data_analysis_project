@@ -1,7 +1,6 @@
 import "dotenv/config";
 import axios from "axios";
 import { Router } from "express";
-import { connection } from "../../index.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -49,12 +48,52 @@ testController.post(
   upload.single("testImage"),
   async (req, res) => {
     try {
+      const { attackerId } = req.body;
       const testImage = req.file; // 사진 정보가 담겨있음
       const { mimetype, originalname, path } = testImage;
       const [result] = await client.textDetection(path);
       const annotations = result.textAnnotations;
-      const textArray = annotations.map((annotation) => annotation.description);
-      res.status(201).json(textArray[0]);
+      const textArray = annotations.map(
+        (annotation) => annotation.description
+      )[0];
+      const messages = textArray.split("\n").map((line) => {
+        const match = line.match(
+          /\[(.*?)\] (\[(.*?)\] )?(.*?) \((.*?)\): (.*)/
+        );
+        if (match) {
+          const timestamp = match[1];
+          const isGlobal = match[3] !== undefined;
+          const senderName = match[4];
+          const senderAlias = match[5];
+          const message = match[6];
+          if (senderName === attackerId)
+            return {
+              timestamp,
+              isGlobal,
+              senderName,
+              senderAlias,
+              message,
+            };
+        }
+      });
+
+      for (let i = 0; i < messages.length; i++) {
+        // 객체에 대한 작업 수행
+        if (messages[i]) {
+          axios
+            .post(process.env.FLASK_ADDRESS, messages[i])
+            .then((response) => {
+              console.log(
+                "report_id:",
+                "category_name:",
+                response.data,
+                "content:",
+                messages[i].message
+              );
+            });
+        }
+      }
+      res.status(201).json(messages);
     } catch (error) {
       res.status(500).json({ error });
     }

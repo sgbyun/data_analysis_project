@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 
 const reportController = Router();
 import multer from "multer";
+reportController.use(login_required);
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -22,7 +23,6 @@ const upload = multer({
 reportController.post(
   "/report/register",
   upload.single("reportImage"),
-  login_required,
   async (req, res, next) => {
     try {
       const { attackerId, content, violenceAt } = req.body;
@@ -43,7 +43,7 @@ reportController.post(
 
       const reportImg = new ReportImg(null, null, path, originalname, mimetype);
 
-      const newReport = await reportService.addReport(report, reportImg);
+      await reportService.addReport(report, reportImg);
 
       res.status(201).json("success");
     } catch (error) {

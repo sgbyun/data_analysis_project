@@ -1,6 +1,11 @@
 import { connection } from "../../index.js";
-import { Report, ReportImg } from "./Report.js";
 import reportModel from "./reportModel.js";
+import { ImageAnnotatorClient } from "@google-cloud/vision";
+import axios from "axios";
+
+const client = new ImageAnnotatorClient({
+  keyFilename: "./google_api_key.json",
+});
 
 class reportService {
   // 새로운 신고 생성
@@ -16,18 +21,59 @@ class reportService {
           report.violenceAt,
         ]);
 
-      const reportId4img = await connection
+      const reportId = await connection
         .promise()
         .query(reportModel.selectRecent, [report.userId]);
 
       await connection
         .promise()
         .query(reportModel.insertReportImg, [
-          reportId4img[0][0].id,
+          reportId[0][0].id,
           reportImg.path,
           reportImg.originalName,
           reportImg.mimetype,
         ]);
+
+      const [result] = await client.textDetection(reportImg.path);
+      const annotations = result.textAnnotations;
+      const textArray = annotations.map(
+        (annotation) => annotation.description
+      )[0];
+      const messages = textArray.split("\n").map((line) => {
+        const match = line.match(
+          /\[(.*?)\] (\[(.*?)\] )?(.*?) \((.*?)\): (.*)/
+        );
+        if (match) {
+          const timestamp = match[1];
+          const isGlobal = match[3] !== undefined;
+          const senderName = match[4];
+          const senderAlias = match[5];
+          const message = match[6];
+          if (senderName === report.attackerId)
+            return {
+              timestamp,
+              isGlobal,
+              senderName,
+              senderAlias,
+              message,
+            };
+        }
+      });
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i]) {
+          axios
+            .post(process.env.FLASK_ADDRESS, messages[i])
+            .then((response) => {
+              connection
+                .promise()
+                .query(reportModel.insertCategory, [
+                  reportId[0][0].id,
+                  response.data,
+                  messages[i].message,
+                ]);
+            });
+        }
+      }
     } catch (error) {
       throw new Error(error.message);
     }

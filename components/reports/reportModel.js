@@ -6,6 +6,7 @@ const selectById = `SELECT * FROM report WHERE reportId =?`;
 const deleteReport = `DELETE FROM report WHERE reportId =?`;
 const updateReport = `UPDATE report SET status =? WHERE reportId =?`;
 const insertReportImg = `INSERT INTO report_photo (report_id, path, original_name, mimetype, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`;
+const insertCategory = `INSERT INTO abuse_score (report_id, category_name, content) VALUES (?,?,?)`;
 
 export default {
   insertReport,
@@ -16,4 +17,5 @@ export default {
   deleteReport,
   updateReport,
   insertReportImg,
+  insertCategory,
 };
