@@ -11,7 +11,6 @@ class reportService {
         .query(reportModel.insertReport, [
           report.userId,
           report.attackerId,
-          report.abuseCategory,
           report.content,
           report.violenceAt,
         ]);
@@ -51,15 +50,15 @@ class reportService {
   }
 
   // 신고 상태 업데이트 (관리자, 신고 status 변경) - report id 기반
-  static async updateReport({ report }) {
-    try {
-      const values = [report.status];
-      const updatedReport = await connection
-        .promise()
-        .query(reportModel.updateReport, values);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+  static async updateReport(report) {
+    await connection
+      .promise()
+      .query(reportModel.updateReport, [
+        report.status,
+        report.updatedAt,
+        report.reportId,
+      ]);
+    console.log(report);
   }
 
   // 신고 아이디로 조회 (관리자)
