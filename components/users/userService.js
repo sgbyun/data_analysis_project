@@ -1,8 +1,9 @@
 import { connection } from "../../index.js";
 import userModel from "../users/userModel.js";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User } from "./User.js";
+import { verifyPassword } from "../utils/verifyPassword.js";
+
+
 class userService {
   static async addUser(user) {
     try {
@@ -86,11 +87,11 @@ class userService {
       const user = await userService.getUserOne({ emailId });
 
       if (!user) {
-        const errorMessage = "가입 내역이 없습니다. 다시 한 번 확인해 주세요.";
-        throw new Error(errorMessage);
+        throw new Error("가입 내역이 없습니다. 다시 한 번 확인해 주세요.");
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await verifyPassword(password, user.password);
+
       if (isPasswordValid) {
         const secretKey = process.env.JWT_SECRET_KEY || "secret_key";
         const token = jwt.sign({ emailId: user.email_id }, secretKey);
