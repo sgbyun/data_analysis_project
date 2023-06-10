@@ -77,6 +77,21 @@ reportController.get(
     }
   }
 );
+// 관리자 - 들어온 report case에 대한 사진 경로 반환
+reportController.get(
+  "/admin/reportphoto/:reportId",
+  login_required,
+  async (req, res) => {
+    try {
+      const reportId = req.params.reportId;
+      const report = new Report(reportId);
+      const responseReport = await reportService.getPhotoByreportId(report);
+      res.status(200).json(responseReport);
+    } catch (error) {
+      res.status(500).json("error");
+    }
+  }
+);
 
 // 관리자 - 신고처리 (신고 상태변경)
 reportController.patch("/admin/status", login_required, async (req, res) => {

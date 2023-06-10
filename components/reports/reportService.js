@@ -130,6 +130,17 @@ class reportService {
     }
   }
 
+  static async getPhotoByreportId(report) {
+    try {
+      const result = await connection
+        .promise()
+        .query(reportModel.selectPhotoById, [report.reportId]);
+      return result[0][0].path;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   // 신고 삭제하기 (관리자) - report id 기반
   static async deleteReport({ reportId }) {
     try {
