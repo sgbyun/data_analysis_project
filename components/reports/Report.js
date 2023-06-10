@@ -143,4 +143,31 @@ class ReportImg {
   }
 }
 
-export { Report, ReportImg };
+class ReportCategory {
+  constructor(reportId, categoryName, content) {
+    this._reportId = reportId;
+    this._categoryName = categoryName;
+    this._content = content;
+  }
+  get reportId() {
+    return this._reportId;
+  }
+  get categoryName() {
+    return this._categoryName;
+  }
+  get content() {
+    return this._content;
+  }
+
+  set reportId(reportId) {
+    this._reportId = reportId;
+  }
+  set categoryName(categoryName) {
+    this._categoryName = categoryName;
+  }
+  set content(content) {
+    this._content = content;
+  }
+}
+
+export { Report, ReportImg, ReportCategory };

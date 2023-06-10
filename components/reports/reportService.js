@@ -108,12 +108,23 @@ class reportService {
   }
 
   // 신고 아이디로 조회 (관리자)
-  static async getReportById({ reportId }) {
+  static async getReportById(report) {
     try {
       const result = await connection
         .promise()
-        .query(reportModel.selectById, [reportId]);
+        .query(reportModel.selectById, [report.reportId]);
       return result[0][0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async getCategoryByreportId(report) {
+    try {
+      const result = await connection
+        .promise()
+        .query(reportModel.selectCategoriesById, [report.reportId]);
+      return result[0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -125,6 +136,21 @@ class reportService {
       const deletedReport = await connection
         .promise()
         .query(reportModel.deleteReport, [reportId]);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async updateCategory(reportCategory) {
+    try {
+      console.log(reportCategory);
+      await connection
+        .promise()
+        .query(reportModel.updateCategory, [
+          reportCategory.categoryName,
+          reportCategory.reportId,
+          reportCategory.content,
+        ]);
     } catch (error) {
       throw new Error(error.message);
     }

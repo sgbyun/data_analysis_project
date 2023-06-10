@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Report, ReportImg } from "./Report.js";
+import { Report, ReportCategory, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
 import multer from "multer";
 import { login_required } from "../middlewares/login_required.js";
@@ -9,6 +9,9 @@ const reportController = Router();
 const upload = multer({
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
+      if (!fs.existsSync("./components/reports/reported_img")) {
+        fs.mkdirSync("./components/reports/reported_img");
+      }
       cb(null, "./components/reports/reported_img");
     },
     filename: function (req, file, cb) {
@@ -54,11 +57,26 @@ reportController.post(
 reportController.get("/admin/report", login_required, async (req, res) => {
   try {
     const reports = await reportService.getAllReports();
-    return res.status(200).json(reports);
+    res.status(200).json(reports);
   } catch (error) {
     res.status(500).json("error");
   }
 });
+// 관리자 - 들어온 report case에 대한 욕설 목록 반환
+reportController.get(
+  "/admin/report/:reportId",
+  login_required,
+  async (req, res) => {
+    try {
+      const reportId = req.params.reportId;
+      const report = new Report(reportId);
+      const responseReport = await reportService.getCategoryByreportId(report);
+      res.status(200).json(responseReport);
+    } catch (error) {
+      res.status(500).json("error");
+    }
+  }
+);
 
 // 관리자 - 신고처리 (신고 상태변경)
 reportController.patch("/admin/status", login_required, async (req, res) => {
@@ -78,5 +96,24 @@ reportController.patch("/admin/status", login_required, async (req, res) => {
 
   return res.status(200).json("상태 업데이트 완료");
 });
+// 관리자 - 욕설 문장 카테고리 변경 적용
+reportController.patch(
+  "/admin/report/detail",
+  login_required,
+  async (req, res) => {
+    try {
+      const { reportId, categoryName, content } = req.body;
+      const reportCategory = new ReportCategory(
+        reportId,
+        categoryName,
+        content
+      );
+      await reportService.updateCategory(reportCategory);
+      res.status(200).json("신고 카테고리 재설정 완료");
+    } catch (error) {
+      res.status(500).json("error");
+    }
+  }
+);
 
 export { reportController };
