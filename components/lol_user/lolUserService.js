@@ -3,26 +3,33 @@ import lolUserModel from "./lolUserModel.js";
 import { getSummonerInfo, getLeagueData } from "../utils/connectRiotApi.js";
 
 class lolUserService {
-  static async addLolUser({ lolId }) {
+  static async checkLolUser(Loluser) {
     try {
-      const summonerData = await getSummonerInfo(lolId);
-      console.log("addUser ", summonerData);
+      const summonerData = await getSummonerInfo(Loluser.lolId);
       const leagueData = await getLeagueData(summonerData.id);
-      let rank = null;
-      let tier = "unranked";
-      let wins = null;
-      let losses = null;
-      if (leagueData !== undefined) {
-        rank = leagueData.rank;
-        tier = leagueData.tier;
-        wins = leagueData.wins;
-        losses = leagueData.losses;
-      }
+      return {
+        summonerLevel: summonerData.summonerLevel,
+        tier: leagueData?.tier || "unranked",
+        rank: leagueData?.rank || null,
+      };
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async addLolUser(Loluser) {
+    try {
+      const summonerData = await getSummonerInfo(Loluser.lolId);
+      const leagueData = await getLeagueData(summonerData.id);
+      const rank = leagueData?.rank || null;
+      const tier = leagueData?.tier || "unranked";
+      const wins = leagueData?.wins || null;
+      const losses = leagueData?.losses || null;
       const query = lolUserModel.insertLolUser;
       await connection
         .promise()
         .query(query, [
-          lolId,
+          Loluser.lolId,
           summonerData.summonerLevel,
           rank,
           tier,
@@ -34,30 +41,24 @@ class lolUserService {
     }
   }
 
-  static async getLolUser({ lolId }) {
+  static async getLolUser(Loluser) {
     try {
       const query = lolUserModel.selectLolUser;
-      const result = await connection.promise().query(query, [lolId]);
+      const result = await connection.promise().query(query, [Loluser.lolId]);
       return result[0][0];
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  static async setLolUser({ lolId }) {
+  static async setLolUser(Loluser) {
     try {
-      const summonerData = await getSummonerInfo.getSummonerInfo(lolId);
+      const summonerData = await getSummonerInfo(Loluser.lolId);
       const leagueData = await getLeagueData(summonerData.id);
-      let rank = null;
-      let tier = null;
-      let wins = null;
-      let losses = null;
-      if (leagueData !== undefined) {
-        rank = leagueData.rank;
-        tier = leagueData.tier;
-        wins = leagueData.wins;
-        losses = leagueData.losses;
-      }
+      const rank = leagueData?.rank || null;
+      const tier = leagueData?.tier || "unranked";
+      const wins = leagueData?.wins || null;
+      const losses = leagueData?.losses || null;
       const query = lolUserModel.updateLolUser;
       await connection
         .promise()
@@ -67,7 +68,7 @@ class lolUserService {
           tier,
           wins,
           losses,
-          lolId,
+          Loluser.lolId,
         ]);
     } catch (error) {
       throw new Error(error.message);
@@ -75,21 +76,25 @@ class lolUserService {
   }
 
   //보류, 신고 승인시 reportCount mannerGrade 갱신
-  static async reportLolUser({ lolId, reportCount, mannerGrade }) {
+  static async reportLolUser(lolUser) {
     try {
       const query = lolUserModel.reportLolUser;
       await connection
         .promise()
-        .query(query, [reportCount, mannerGrade, lolId]);
+        .query(query, [
+          lolUser.reportCount,
+          lolUser.mannerGrade,
+          lolUser.lolId,
+        ]);
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  static async removeLolUser({ lolId }) {
+  static async removeLolUser(Loluser) {
     try {
       const query = lolUserModel.deleteLolUser;
-      await connection.promise().query(query, [lolId]);
+      await connection.promise().query(query, [Loluser.lolId]);
     } catch (error) {
       throw new Error(error.message);
     }

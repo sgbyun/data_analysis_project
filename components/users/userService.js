@@ -1,9 +1,8 @@
 import { connection } from "../../index.js";
 import userModel from "../users/userModel.js";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyPassword } from "../utils/verifyPassword.js";
-import { User } from "./User.js";
+
 
 class userService {
   static async addUser(user) {
@@ -92,7 +91,6 @@ class userService {
       }
 
       const isPasswordValid = await verifyPassword(password, user.password);
-      console.log("Hashed Password:", user.password); // 비밀번호 해시화된 값 확인
 
       if (isPasswordValid) {
         const secretKey = process.env.JWT_SECRET_KEY || "secret_key";
