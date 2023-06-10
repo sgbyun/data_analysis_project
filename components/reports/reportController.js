@@ -3,6 +3,11 @@ import { Report, ReportCategory, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
 import multer from "multer";
 import { login_required } from "../middlewares/login_required.js";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const reportController = Router();
 
@@ -77,7 +82,7 @@ reportController.get(
     }
   }
 );
-// 관리자 - 들어온 report case에 대한 사진 경로 반환
+// 관리자 - 들어온 report case에 대한 사진 반환
 reportController.get(
   "/admin/reportphoto/:reportId",
   login_required,
@@ -85,8 +90,11 @@ reportController.get(
     try {
       const reportId = req.params.reportId;
       const report = new Report(reportId);
-      const responseReport = await reportService.getPhotoByreportId(report);
-      res.status(200).json(responseReport);
+      const photoPath = await reportService.getPhotoByreportId(report);
+      console.log(__dirname);
+      console.log(__filename);
+      const absolutePath = join(__dirname, "../..", photoPath);
+      res.sendFile(absolutePath);
     } catch (error) {
       res.status(500).json("error");
     }
