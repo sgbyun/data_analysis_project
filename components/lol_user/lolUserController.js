@@ -31,6 +31,16 @@ lolUserController.post("/lolUser/register", async (req, res) => {
   }
 });
 
+lolUserController.get("/lolUser/my", login_required, async (req, res) => {
+  try {
+    const emailId = req.currentEmailId;
+    const userInfo = await lolUserService.getLolUserByEmailId(emailId);
+    res.status(200).json(userInfo);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 lolUserController.get("/lolUser/:lolId", async (req, res) => {
   try {
     const lolUser = new LolUser(req.params.lolId);

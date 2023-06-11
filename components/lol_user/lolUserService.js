@@ -51,6 +51,16 @@ class lolUserService {
     }
   }
 
+  static async getLolUserByEmailId(userId) {
+    try {
+      const query = lolUserModel.selectLolUserByEmailId;
+      const result = await connection.promise().query(query, [userId]);
+      return result[0][0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   static async setLolUser(Loluser) {
     try {
       const summonerData = await getSummonerInfo(Loluser.lolId);

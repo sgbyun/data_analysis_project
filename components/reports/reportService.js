@@ -119,6 +119,18 @@ class reportService {
     }
   }
 
+  static async getReportsByEmailId(emailId) {
+    try {
+      console.log(emailId);
+      const result = await connection
+        .promise()
+        .query(reportModel.selectByEmail, [emailId]);
+      return result[0];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   static async getCategoryByreportId(report) {
     try {
       const result = await connection
