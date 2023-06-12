@@ -55,19 +55,6 @@ class statisticsService {
     return abuseCntByCategory;
   }
 
-  // 신고된 카테고리별 평균 점수
-  static async getAbuseScoreByCategory() {
-    const abuseScoreByCategory = (
-      await connection
-        .promise()
-        .query(statisticsModel.selectAbuseScoreByCategory)
-    )[0];
-
-    console.log(abuseScoreByCategory);
-
-    return abuseScoreByCategory;
-  }
-
   // 월별 신고 누적 횟수
   static async getReportCntByMonth() {
     const reportCntByMonth = (
@@ -128,6 +115,50 @@ class statisticsService {
     console.log(abuseCntByMonth);
 
     return abuseCntByMonth;
+  }
+
+  // 유저의 카테고리별 신고 당한 건수
+  static async getUserReportedCntByCategory(emailId) {
+    const userReportecCntByCategory = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectUserReportCntByCategory, [emailId])
+    )[0];
+
+    console.log(userReportecCntByCategory);
+
+    return userReportecCntByCategory;
+  }
+
+  // 유저의 승인된 신고 건수, 미승인된 건수
+  static async getUserReportCntByStatus(emailId) {
+    const UserReportCnt = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectUserReportCntByStatus, [emailId])
+    )[0];
+
+    return UserReportCnt;
+  }
+
+  // 유저의 신고 당한 건수
+  static async getUserReportedCnt(emailId) {
+    const userReportedCnt = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectUserReportedCnt, [emailId])
+    )[0];
+    return userReportedCnt;
+  }
+
+  // 유저의 신고 한 건수
+  static async getUserReportingCnt(emailId) {
+    const userReportingCnt = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectUserReportingCnt, [emailId])
+    )[0];
+    return userReportingCnt;
   }
 }
 

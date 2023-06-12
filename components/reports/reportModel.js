@@ -1,6 +1,6 @@
 const insertReport = `INSERT INTO report (user_id, attacker_id, content, violence_at, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`;
 const selectByEmail = `SELECT * FROM report WHERE user_id =?`;
-const selectReports = `SELECT * FROM report`;
+const selectReports = `SELECT * from report ORDER BY created_at DESC `;
 const selectRecent = `SELECT * FROM report WHERE user_id = ? ORDER BY created_at DESC limit 1`;
 const selectById = `SELECT * FROM report WHERE id =?`;
 const deleteReport = `DELETE FROM report WHERE id =?`;
@@ -20,6 +20,14 @@ SET report_count = (
     AND ab.category_name <> 'clean'
 )
 WHERE lol_id = (SELECT lol_id FROM report WHERE id = ?)`;
+
+const selectReportsByAsc = `SELECT * from report ORDER BY created_at ASC`;
+const selectReportsByOld = `SELECT * FROM report WHERE status = ? ORDER BY created_at ASC LIMIT ?,?`;
+const selectReportsByNew = `SELECT * FROM report WHERE status = ? ORDER BY created_at DESC LIMIT ?,?`;
+
+const selectTotalReportCnt = `SELECT count(*) FROM report `;
+const selectTotalReportCntBy = `SELECT count(*) FROM report WHERE status = ? `;
+
 export default {
   insertReport,
   selectByEmail,
@@ -34,4 +42,9 @@ export default {
   selectCategoriesById,
   updateCategory,
   updateReportCount,
+  selectReportsByAsc,
+  selectReportsByNew,
+  selectReportsByOld,
+  selectTotalReportCnt,
+  selectTotalReportCntBy,
 };

@@ -3,26 +3,12 @@ const selectMaleCnt = `SELECT count(*) male FROM users WHERE is_male = 1 `;
 // 총 이용자 수
 const selectTotalUserCnt = `SELECT count(*) totalUser FROM users`;
 // 티어별 누적 신고
-const selectTierReportCnt = ` SELECT lu.tier, COUNT(*) count
+const selectTierReportCnt = `SELECT lu.tier, COUNT(*) count
 FROM lol_user lu
-INNER JOIN report r ON lu.lol_id = r.attacker_id WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
-GROUP BY lu.tier; `;
-// SELECT
-//   SUM(CASE WHEN lu.tier = 'challenger' THEN 1 ELSE 0 END) AS challenger,
-//   SUM(CASE WHEN lu.tier = 'grandmaster' THEN 1 ELSE 0 END) AS grandmaster,
-//   SUM(CASE WHEN lu.tier = 'master' THEN 1 ELSE 0 END) AS master,
-//   SUM(CASE WHEN lu.tier = 'diamond' THEN 1 ELSE 0 END) AS diamond,
-//   SUM(CASE WHEN lu.tier = 'platinum' THEN 1 ELSE 0 END) AS platinum,
-//   SUM(CASE WHEN lu.tier = 'gold' THEN 1 ELSE 0 END) AS gold,
-//   SUM(CASE WHEN lu.tier = 'silver' THEN 1 ELSE 0 END) AS silver,
-//   SUM(CASE WHEN lu.tier = 'bronze' THEN 1 ELSE 0 END) AS bronze,
-//   SUM(CASE WHEN lu.tier = 'iron' THEN 1 ELSE 0 END) AS iron
-// FROM
-//   lol_user lu
-//   INNER JOIN report r ON lu.lol_id = r.attacker_id
-// WHERE
-//   lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron');
-
+INNER JOIN report r ON lu.lol_id = r.attacker_id 
+WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
+	AND r.status = 'completed' 
+GROUP BY lu.tier; ; `;
 // 챌린저 티어 누적 신고
 const selectReportChallengerCnt = `SELECT count(*) challenger FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = challenger`;
 // 그랜드마스터 티어 누적 신고
@@ -44,51 +30,41 @@ const selectReportIronCnt = `SELECT count(*) iron FROM lol_user lu inner JOIN re
 // 신고 누적 상위 10명
 const selecteportLoluserTopTen = ` SELECT attacker_id, COUNT(*) count
 FROM report
+WHERE status = 'completed'
 GROUP BY attacker_id
 ORDER BY count DESC
 LIMIT 10 `;
 // 신고된 카테고리 누적횟수
-const selectAbuseCntByCategory = `SELECT category_name, COUNT(*) AS count
-FROM abuse_score
-GROUP BY category_name;`;
-// 신고된 카테고리별 평균 점수
-const selectAbuseScoreByCategory = `SELECT category_name, AVG(score) AS average_score
-FROM abuse_score
-GROUP BY category_name;`;
+const selectAbuseCntByCategory = `SELECT category_name, COUNT(*) AS category_count
+FROM abuse_score AS a
+JOIN report r ON a.report_id = r.id
+WHERE r.status = 'completed'
+GROUP BY category_name;
+;`;
 // 월별 신고 누적 횟수
-const selectReportCntByMonth = `SELECT DATE_FORMAT(violence_at, '%Y-%m') AS month, COUNT(*) AS report_count
+const selectReportCntByMonth = `SELECT DATE_FORMAT(violence_at, '%m') month, COUNT(*) report_count
 FROM report
+WHERE status = 'completed'
 GROUP BY month;
 `;
 // manner_grade별 cnt
-const selectLoluserCntByMannerGrade = `SELECT manner_grade, COUNT(*) AS grade_count
+const selectLoluserCntByMannerGrade = `SELECT manner_grade, COUNT(*) grade_count
 FROM lol_user
 GROUP BY manner_grade;
 `;
 // 신고된 카테고리 누적횟수 순위
-const selectAbuseCategoryRankByCnt = `SELECT abuse_category, COUNT(*) AS category_count
-FROM report
-WHERE abuse_category IS NOT NULL
-GROUP BY abuse_category
-ORDER BY category_count DESC;
+const selectAbuseCategoryRankByCnt = `SELECT category_name, COUNT(*) totalReports
+FROM abuse_score a
+JOIN report r ON a.report_id = r.id
+WHERE r.status = 'completed'
+GROUP BY category_name
+ORDER BY totalReports DESC;
 `;
-// 가해자별로 가장 많이 신고된 언어폭력 종류
-// const selectAbuseCntByAttackerUser = `SELECT attacker_id, abuse_category, COUNT(*) AS report_count
-// FROM report
-// GROUP BY attacker_id, abuse_category
-// HAVING COUNT(*) = (
-//   SELECT MAX(report_count)
-//   FROM (
-//     SELECT attacker_id, abuse_category, COUNT(*) AS report_count
-//     FROM report
-//     GROUP BY attacker_id, abuse_category
-//   ) AS subquery
-// );
-// `;
+
 const selectAbuseCntByAttackerUser = `SELECT category_name
 FROM abuse_score
 WHERE report_id IN (
-  SELECT id AS report_id
+  SELECT id report_id
   FROM report
   WHERE attacker_id = ?
 )
@@ -98,13 +74,50 @@ LIMIT 1;
 `;
 
 const selectAbuseCntByMonth = `
-SELECT COUNT(*) AS score_count
+SELECT COUNT(*) score_count
 FROM abuse_score
 WHERE report_id IN (
-  SELECT id AS report_id
+  SELECT id report_id
   FROM report
   WHERE attacker_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
 );
+`;
+
+// 유저의 카테고리별 신고 당한 횟수
+const selectUserReportCntByCategory = `
+SELECT r.attacker_id, a.category_name, COUNT(*) count
+FROM report r
+JOIN abuse_score a ON r.id = a.report_id
+JOIN lol_user l ON r.attacker_id = l.lol_id
+JOIN users u ON l.lol_id = u.lol_id
+WHERE u.email_id = ? AND r.status = 'completed'
+GROUP BY r.attacker_id, a.category_name
+`;
+
+// 유저가 승인된 신고, 미승인된 신고 한 횟수
+const selectUserReportCntByStatus = `
+SELECT count(*) count, status
+FROM report
+WHERE user_id = ?
+GROUP BY status
+`;
+
+// 유저가 승인된 신고를 한 횟수
+const selectUserReportingCnt = `
+SELECT COUNT(*) count
+FROM report r
+INNER JOIN users u on r.user_id = u.email_id
+WHERE r.status = 'completed'
+AND u.email_id = ?
+`;
+
+// 유저가 신고당한 횟수
+const selectUserReportedCnt = `
+SELECT COUNT(*) count
+FROM report r 
+INNER JOIN users u ON r.attacker_id = u.lol_id
+WHERE u.email_id = ?
+AND r.status = 'completed'
 `;
 
 export default {
@@ -122,10 +135,13 @@ export default {
   selectReportIronCnt,
   selecteportLoluserTopTen,
   selectAbuseCntByCategory,
-  selectAbuseScoreByCategory,
   selectReportCntByMonth,
   selectLoluserCntByMannerGrade,
   selectAbuseCategoryRankByCnt,
   selectAbuseCntByAttackerUser,
   selectAbuseCntByMonth,
+  selectUserReportCntByCategory,
+  selectUserReportCntByStatus,
+  selectUserReportingCnt,
+  selectUserReportedCnt,
 };

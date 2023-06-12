@@ -122,24 +122,35 @@ reportController.patch("/admin/status", login_required, async (req, res) => {
   return res.status(200).json("상태 업데이트 완료");
 });
 
-// 관리자 - 욕설 문장 카테고리 변경 적용
-reportController.patch(
-  "/admin/report/detail",
-  login_required,
-  async (req, res) => {
-    try {
-      const { reportId, categoryName, content } = req.body;
-      const reportCategory = new ReportCategory(
-        reportId,
-        categoryName,
-        content
-      );
-      await reportService.updateCategory(reportCategory);
-      res.status(200).json("신고 카테고리 재설정 완료");
-    } catch (error) {
-      res.status(500).json("error");
-    }
+// 신고목록 조회
+reportController.get("/admin/report", async (req, res) => {
+  // try {
+  const { sort, status, currentPage } = req.query;
+  const rowPerpage = 10;
+  const currentPageNumber = parseInt(currentPage, 10);
+
+  const totalReportsCnt = await reportService.getTotalReportCntBy(status);
+  let startIndex = (currentPage - 1) * rowPerpage;
+  if (startIndex < 0) {
+    startIndex = 0;
   }
-);
+  const reports = await reportService.getReportsBy(
+    startIndex,
+    rowPerpage,
+    sort,
+    status
+  );
+
+  return res.status(200).json({
+    totalReportsCnt,
+    currentPageNumber,
+    totalPages: Math.ceil(totalReportsCnt / rowPerpage),
+    data: reports,
+  });
+
+  // } catch (error) {
+  //   res.status(500).json("error");
+  // }
+});
 
 export { reportController };

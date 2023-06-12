@@ -101,10 +101,65 @@ class reportService {
     }
   }
 
-  // 전체 신고목록 조회
+  // 전체 신고목록 최신순 조회
   static async getAllReports() {
     const result = await connection.promise().query(reportModel.selectReports);
     return result[0];
+  }
+
+  // status별 전체 신고 목록
+  static async getTotalReportCntBy(status) {
+    try {
+      if (status === "all") {
+        const totalReportCnt = await connection
+          .promise()
+          .query(reportModel.selectTotalReportCnt);
+        return totalReportCnt[0][0]["count(*)"];
+      } else {
+        const totalReportCnt = await connection
+          .promise()
+          .query(reportModel.selectTotalReportCntBy, [status]);
+        return totalReportCnt[0][0]["count(*)"];
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async getReportsBy(startIndex, rowPerPage, sort, status) {
+    if (sort == "old") {
+      if (status == "all") {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByAsc);
+        return result[0];
+      } else {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByOld, [
+            status,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      }
+    } else if (sort == "new") {
+      if (status == "all") {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReports);
+        return result[0];
+      } else {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByNew, [
+            status,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      }
+    }
   }
 
   // 신고 상태 업데이트 (관리자, 신고 status 변경) - report id 기반
