@@ -45,14 +45,6 @@ statsController.get("/stats/abuseCntByCategory", async (req, res) => {
   res.status(200).json(abuseCntByCategory);
 });
 
-// 신고된 카테고리별 평균 점수
-statsController.get("/stats/abuseScoreByCategory", async (req, res) => {
-  const abuseScoreByCategory =
-    await statisticsService.getAbuseScoreByCategory();
-  console.log("statsController abuseScoreByCategory : ", abuseScoreByCategory);
-  res.status(200).json(abuseScoreByCategory);
-});
-
 // manner_grade별 cnt
 statsController.get("/stats/loluserCntByMannerGrade", async (req, res) => {
   const loluserCntByMannerGrade =

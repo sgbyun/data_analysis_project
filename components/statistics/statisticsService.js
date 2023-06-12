@@ -55,19 +55,6 @@ class statisticsService {
     return abuseCntByCategory;
   }
 
-  // 신고된 카테고리별 평균 점수
-  static async getAbuseScoreByCategory() {
-    const abuseScoreByCategory = (
-      await connection
-        .promise()
-        .query(statisticsModel.selectAbuseScoreByCategory)
-    )[0];
-
-    console.log(abuseScoreByCategory);
-
-    return abuseScoreByCategory;
-  }
-
   // 월별 신고 누적 횟수
   static async getReportCntByMonth() {
     const reportCntByMonth = (
