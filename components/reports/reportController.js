@@ -2,6 +2,7 @@ import { Router } from "express";
 import { Report, ReportCategory, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
 import multer from "multer";
+import fs from "fs";
 import { login_required } from "../middlewares/login_required.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";

@@ -63,11 +63,23 @@ class reportService {
           axios
             .post(process.env.FLASK_ADDRESS, messages[i])
             .then((response) => {
+              const responseData = response.data;
               connection
                 .promise()
                 .query(reportModel.insertCategory, [
                   reportId[0][0].id,
-                  response.data,
+                  responseData,
+                  messages[i].message,
+                ]);
+            })
+            .catch((error) => {
+              console.error("서버 요청 실패");
+              const responseData = "clean"; // 서버 요청 실패 시 "clean"을 사용
+              connection
+                .promise()
+                .query(reportModel.insertCategory, [
+                  reportId[0][0].id,
+                  responseData,
                   messages[i].message,
                 ]);
             });
