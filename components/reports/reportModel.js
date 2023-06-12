@@ -8,18 +8,12 @@ const updateReport = `UPDATE report SET status= ?, updated_at =? WHERE id = ?`;
 const insertReportImg = `INSERT INTO report_photo (report_id, path, original_name, mimetype, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`;
 const insertCategory = `INSERT INTO abuse_score (report_id, category_name, content) VALUES (?,?,?)`;
 
-const selectReportsByOldandPending = `SELECT * FROM report WHERE status = 'pending' ORDER BY created_at ASC LIMIT ?,? `;
-const selectReportsByOldandCompleted = `SELECT * FROM report WHERE status = 'completed' ORDER BY created_at ASC LIMIT ?,? `;
-const selectReportsByOldandRejected = `SELECT * FROM report WHERE status = 'rejected' ORDER BY created_at ASC LIMIT ?,?`;
-const selectReportsByNewandPending = `SELECT * FROM report WHERE status = 'pending' ORDER BY created_at DESC LIMIT ?,? `;
-const selectReportsByNewandCompleted = `SELECT * FROM report WHERE status = 'completed' ORDER BY created_at DESC LIMIT ?,? `;
-const selectReportsByNewandRejected = `SELECT * FROM report WHERE status = 'rejected' ORDER BY created_at DESC LIMIT ?,?`;
+const selectReportsByAsc = `SELECT * from report ORDER BY created_at ASC`;
+const selectReportsByOld = `SELECT * FROM report WHERE status = ? ORDER BY created_at ASC LIMIT ?,?`;
+const selectReportsByNew = `SELECT * FROM report WHERE status = ? ORDER BY created_at DESC LIMIT ?,?`;
 
 const selectTotalReportCnt = `SELECT count(*) FROM report `;
-const selectReportsByAsc = `SELECT * from report ORDER BY created_at ASC`;
-const selectTotalReportCompletedCnt = `SELECT count(*) FROM report WHERE status = 'completed' `;
-const selectTotalReportPendingCnt = `SELECT count(*) FROM report WHERE status = 'pending' `;
-const selectTotalReportRejectedCnt = `SELECT count(*) FROM report WHERE status = 'rejected' `;
+const selectTotalReportCntBy = `SELECT count(*) FROM report WHERE status = ? `;
 
 export default {
   insertReport,
@@ -32,14 +26,8 @@ export default {
   insertReportImg,
   insertCategory,
   selectReportsByAsc,
-  selectReportsByOldandPending,
-  selectReportsByOldandCompleted,
-  selectReportsByOldandRejected,
-  selectReportsByNewandPending,
-  selectReportsByNewandCompleted,
-  selectReportsByNewandRejected,
+  selectReportsByNew,
+  selectReportsByOld,
   selectTotalReportCnt,
-  selectTotalReportCompletedCnt,
-  selectTotalReportPendingCnt,
-  selectTotalReportRejectedCnt,
+  selectTotalReportCntBy,
 };

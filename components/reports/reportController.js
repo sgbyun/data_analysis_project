@@ -76,162 +76,25 @@ reportController.get("/admin/report", async (req, res) => {
   const rowPerpage = 10;
   const currentPageNumber = parseInt(currentPage, 10);
 
-  console.log(req.query);
-
-  if (sort == "old") {
-    if (status == "pending") {
-      // old AND pending
-      const totalReportsCntByPeding =
-        await reportService.getTotalReportCntByPending();
-      let startIndex = (currentPage - 1) * rowPerpage;
-      if (startIndex < 0) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByOldandPending(
-        startIndex,
-        rowPerpage
-      );
-
-      return res.status(200).json({
-        totalReportsCntByPeding,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByPeding / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "completed") {
-      // old AND pending
-      const totalReportsCntByCompleted =
-        await reportService.getTotalReportCntByCompleted();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByOldandCompleted(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCntByCompleted,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByCompleted / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "rejected") {
-      // old AND rejected
-      const totalReportsCntByRejected =
-        await reportService.getTotalReportCntByRejected();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByOldandRejected(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCntByRejected,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByRejected / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "all") {
-      // old AND all
-      const totalReportsCnt = await reportService.getTotalReportCnt();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getAllReportsByAsc(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCnt,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCnt / rowPerpage),
-        data: reports,
-      });
-    }
-  } else {
-    // new
-    if (status == "pending") {
-      // new AND pending
-      const totalReportsCntByPeding =
-        await reportService.getTotalReportCntByPending();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByNewandPending(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCntByPeding,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByPeding / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "completed") {
-      // new AND pending
-      const totalReportsCntByCompleted =
-        await reportService.getTotalReportCntByCompleted();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByNewandCompleted(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCntByCompleted,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByCompleted / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "rejected") {
-      // old AND rejected
-      const totalReportsCntByRejected =
-        await reportService.getTotalReportCntByRejected();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getReportsByNewandRejected(
-        startIndex,
-        rowPerpage
-      );
-      return res.status(200).json({
-        totalReportsCntByRejected,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCntByRejected / rowPerpage),
-        data: reports,
-      });
-    } else if (status == "all") {
-      // new AND all
-      const totalReportsCnt = await reportService.getTotalReportCnt();
-      let startIndex = (currentPageNumber - 1) * rowPerpage;
-      if (startIndex < 1) {
-        startIndex = 0;
-      }
-
-      const reports = await reportService.getAllReports(startIndex, rowPerpage);
-      return res.status(200).json({
-        totalReportsCnt,
-        currentPageNumber,
-        totalPages: Math.ceil(totalReportsCnt / rowPerpage),
-        data: reports,
-      });
-    }
+  const totalReportsCnt = await reportService.getTotalReportCntBy(status);
+  let startIndex = (currentPage - 1) * rowPerpage;
+  if (startIndex < 0) {
+    startIndex = 0;
   }
+  const reports = await reportService.getReportsBy(
+    startIndex,
+    rowPerpage,
+    sort,
+    status
+  );
+
+  return res.status(200).json({
+    totalReportsCnt,
+    currentPageNumber,
+    totalPages: Math.ceil(totalReportsCnt / rowPerpage),
+    data: reports,
+  });
+
   // } catch (error) {
   //   res.status(500).json("error");
   // }
