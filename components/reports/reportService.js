@@ -109,14 +109,18 @@ class reportService {
 
   // 신고 상태 업데이트 (관리자, 신고 status 변경) - report id 기반
   static async updateReport(report) {
-    await connection
-      .promise()
-      .query(reportModel.updateReport, [
-        report.status,
-        report.updatedAt,
-        report.reportId,
-      ]);
-    console.log(report);
+    try {
+      await connection
+        .promise()
+        .query(reportModel.updateReport, [report.status, report.reportId]);
+
+      await connection
+        .promise()
+        .query(reportModel.updateReportCount, [report.reportId]);
+      console.log(report);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   // 신고 아이디로 조회 (관리자)

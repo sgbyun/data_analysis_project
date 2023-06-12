@@ -112,24 +112,16 @@ reportController.get(
   }
 );
 
-// 관리자 - 신고처리 (신고 상태변경)
+// 관리자 - 신고처리 (신고 상태변경), lol_user 테이블 report_count 갱신
 reportController.patch("/admin/status", login_required, async (req, res) => {
-  const { reportId, status, updatedAt } = req.body;
-  const report = new Report(
-    reportId,
-    null,
-    null,
-    status,
-    null,
-    null,
-    null,
-    updatedAt
-  );
+  const { reportId, status } = req.body;
+  const report = new Report(reportId, null, null, status);
 
   await reportService.updateReport(report);
 
   return res.status(200).json("상태 업데이트 완료");
 });
+
 // 관리자 - 욕설 문장 카테고리 변경 적용
 reportController.patch(
   "/admin/report/detail",
