@@ -89,10 +89,132 @@ class reportService {
     }
   }
 
-  // 전체 신고목록 조회
+  // 전체 신고목록 최신순 조회
   static async getAllReports() {
     const result = await connection.promise().query(reportModel.selectReports);
     return result[0];
+  }
+
+  // 전체 신고목록 오래된 조회
+  static async getAllReportsByAsc() {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByAsc);
+    return result[0];
+  }
+
+  // 신고 전체 수
+  static async getTotalReportCnt() {
+    try {
+      const totalReportCnt = await connection
+        .promise()
+        .query(reportModel.selectTotalReportCnt);
+      return totalReportCnt[0][0]["count(*)"];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // 전체 신고목록 old, pending
+  static async getReportsByOldandPending(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByOldandPending, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // 전체 신고목록 new, pending
+  static async getReportsByNewandPending(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByNewandPending, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // pending인 신고 수
+  static async getTotalReportCntByPending() {
+    try {
+      const totalReportCnt = await connection
+        .promise()
+        .query(reportModel.selectTotalReportPendingCnt);
+      return totalReportCnt[0][0]["count(*)"];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // 전체 신고목록 old, completed
+  static async getReportsByOldandCompleted(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByOldandCompleted, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // 전체 신고목록 new, completed
+  static async getReportsByNewandCompleted(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByNewandCompleted, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // completed된 신고 수
+  static async getTotalReportCntByCompleted() {
+    try {
+      const totalReportCnt = await connection
+        .promise()
+        .query(reportModel.selectTotalReportCompletedCnt);
+      return totalReportCnt[0][0]["count(*)"];
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // 전체 신고목록 old, rejected
+  static async getReportsByOldandRejected(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByOldandRejected, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // 전체 신고목록 new, rejected
+  static async getReportsByNewandRejected(startIndex, rowPerPage) {
+    const result = await connection
+      .promise()
+      .query(reportModel.selectReportsByOldandRejected, [
+        startIndex,
+        rowPerPage,
+      ]);
+    return result[0];
+  }
+
+  // rejected 인 신고 수
+  static async getTotalReportCntByRejected() {
+    try {
+      const totalReportCnt = await connection
+        .promise()
+        .query(reportModel.selectTotalReportRejectedCnt);
+      return totalReportCnt[0][0]["count(*)"];
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   // 신고 상태 업데이트 (관리자, 신고 status 변경) - report id 기반
