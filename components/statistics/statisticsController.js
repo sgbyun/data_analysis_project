@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Router } from "express";
 import { statisticsService } from "./statisticsService.js";
+import { login_required } from "../middlewares/login_required.js";
 
 const statsController = Router();
 
@@ -95,5 +96,43 @@ statsController.get("/stats/basic/:lolId", async (req, res) => {
   console.log(toReturn);
   res.status(200).json(toReturn);
 });
+
+// 유저의 카테고리별 신고 당한 건수
+statsController.get(
+  "/stats/userReportedByCategory/:emailId",
+  login_required,
+  async (req, res) => {
+    const emailId = req.currentEmailId;
+    const userReportByCategory =
+      await statisticsService.getUserReportedCntByCategory(emailId);
+    res.status(200).json(userReportByCategory);
+  }
+);
+
+// 유저의 승인된 신고 건수 미승인된 건수
+statsController.get(
+  "/stats/userReportCntByStatus/:emailId",
+  login_required,
+  async (req, res) => {
+    const emailId = req.currentEmailId;
+    const userReportByStatusCnt =
+      await statisticsService.getUserReportCntByStatus(emailId);
+    res.status(200).json(userReportByStatusCnt);
+  }
+);
+
+// 유저의 신고 당한 건수, 신고한 건수
+statsController.get(
+  "/stats/userReportCnt/:emailId",
+  login_required,
+  async (req, res) => {
+    const emailId = req.currentEmailId;
+    const userReportedCnt = await statisticsService.getUserReportedCnt(emailId);
+    const userReportingCnt = await statisticsService.getUserReportingCnt(
+      emailId
+    );
+    res.status(200).json({ userReportedCnt, userReportingCnt });
+  }
+);
 
 export { statsController };

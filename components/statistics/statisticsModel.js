@@ -83,6 +83,43 @@ WHERE report_id IN (
 );
 `;
 
+// 유저의 카테고리별 신고 당한 횟수
+const selectUserReportCntByCategory = `
+SELECT r.attacker_id, a.category_name, COUNT(*) count
+FROM report r
+JOIN abuse_score a ON r.id = a.report_id
+JOIN lol_user l ON r.attacker_id = l.lol_id
+JOIN users u ON l.lol_id = u.lol_id
+WHERE u.email_id = ? AND r.status = 'completed'
+GROUP BY r.attacker_id, a.category_name
+`;
+
+// 유저가 승인된 신고, 미승인된 신고 한 횟수
+const selectUserReportCntByStatus = `
+SELECT count(*) count, status
+FROM report
+WHERE user_id = ?
+GROUP BY status
+`;
+
+// 유저가 승인된 신고를 한 횟수
+const selectUserReportingCnt = `
+SELECT COUNT(*) count
+FROM report r
+INNER JOIN users u on r.user_id = u.email_id
+WHERE r.status = 'completed'
+AND u.email_id = ?
+`;
+
+// 유저가 신고당한 횟수
+const selectUserReportedCnt = `
+SELECT COUNT(*) count
+FROM report r 
+INNER JOIN users u ON r.attacker_id = u.lol_id
+WHERE u.email_id = ?
+AND r.status = 'completed'
+`;
+
 export default {
   selectMaleCnt,
   selectTotalUserCnt,
@@ -103,4 +140,8 @@ export default {
   selectAbuseCategoryRankByCnt,
   selectAbuseCntByAttackerUser,
   selectAbuseCntByMonth,
+  selectUserReportCntByCategory,
+  selectUserReportCntByStatus,
+  selectUserReportingCnt,
+  selectUserReportedCnt,
 };
