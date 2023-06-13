@@ -2,6 +2,18 @@ import { connection } from "../../index.js";
 import statisticsModel from "./statisticsModel.js";
 
 class statisticsService {
+  // 총 유저의 수
+  static async getUserTotalCount() {
+    try {
+      const totalUserCnt = (
+        await connection.promise().query(statisticsModel.selectTotalUserCnt)
+      )[0][0].totalUser;
+      return totalUserCnt;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  // 성별
   static async getGenderRatio() {
     try {
       // 총 유저의 수
@@ -17,6 +29,18 @@ class statisticsService {
       const genderRatio = (parseInt(maleCnt) / parseInt(totalUserCnt)) * 100;
 
       return genderRatio;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  // report 전체 신고 수
+  static async getReportTotalCount() {
+    try {
+      const totalReportCnt = (
+        await connection.promise().query(statisticsModel.selectReportCnt)
+      )[0][0].count;
+      return totalReportCnt;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -159,6 +183,24 @@ class statisticsService {
         .query(statisticsModel.selectUserReportingCnt, [emailId])
     )[0];
     return userReportingCnt;
+  }
+
+  // 시간대별 욕설 당한 횟수
+  static async getReportCntByTime() {
+    const reportCntByTime = (
+      await connection.promise().query(statisticsModel.selectReportCntByTime)
+    )[0];
+    return reportCntByTime;
+  }
+
+  // 롤 티어별 욕설 분류 1위
+  static async getReportCategoryByTier() {
+    const reportCategoryByTier = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectReportCategoryByTier)
+    )[0];
+    return reportCategoryByTier;
   }
 }
 
