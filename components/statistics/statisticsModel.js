@@ -2,13 +2,15 @@
 const selectMaleCnt = `SELECT count(*) male FROM users WHERE is_male = 1 `;
 // 총 이용자 수
 const selectTotalUserCnt = `SELECT count(*) totalUser FROM users`;
+// 리포트 전체 신고 건수
+const selectReportCnt = `SELECT count(*) count FROM report WHERE status= 'completed' `;
 // 티어별 누적 신고
 const selectTierReportCnt = `SELECT lu.tier, COUNT(*) count
 FROM lol_user lu
 INNER JOIN report r ON lu.lol_id = r.attacker_id 
 WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
 	AND r.status = 'completed' 
-GROUP BY lu.tier; ; `;
+GROUP BY lu.tier `;
 // 챌린저 티어 누적 신고
 const selectReportChallengerCnt = `SELECT count(*) challenger FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = challenger`;
 // 그랜드마스터 티어 누적 신고
@@ -120,9 +122,51 @@ WHERE u.email_id = ?
 AND r.status = 'completed'
 `;
 
+// 시간대별 욕설 당한 횟수
+const selectReportCntByTime = `
+SELECT
+    COUNT(*) count,
+    CASE
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 0 AND 1 THEN '0-2'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 2 AND 3 THEN '2-4'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 4 AND 5 THEN '4-6'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 6 AND 7 THEN '6-8'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 8 AND 9 THEN '8-10'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 10 AND 11 THEN '10-12'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 12 AND 13 THEN '12-14'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 14 AND 15 THEN '14-16'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 16 AND 17 THEN '16-18'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 18 AND 19 THEN '18-20'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 20 AND 21 THEN '20-22'
+        WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 22 AND 23 THEN '22-24'
+    END hour_range
+FROM report
+WHERE
+    status = 'completed'
+    AND EXTRACT(HOUR FROM violence_at) BETWEEN 0 AND 23
+GROUP BY hour_range
+ORDER BY MIN(EXTRACT(HOUR FROM violence_at))
+`;
+
+// 롤 티어별 욕설 분류 1위 값
+const selectReportCategoryByTier = `
+SELECT t.tier, t.category_name, t.max_count
+FROM (
+    SELECT lu.tier, a.category_name, COUNT(*) count, MAX(COUNT(*)) OVER (PARTITION BY lu.tier) max_count
+    FROM lol_user lu
+    INNER JOIN report r ON lu.lol_id = r.attacker_id 
+    INNER JOIN abuse_score a ON r.id = a.report_id
+    WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
+        AND r.status = 'completed' 
+    GROUP BY lu.tier, a.category_name
+) t
+WHERE t.count = t.max_count
+`;
+
 export default {
   selectMaleCnt,
   selectTotalUserCnt,
+  selectReportCnt,
   selectTierReportCnt,
   selectReportChallengerCnt,
   selectReportGrandmasterCnt,
@@ -144,4 +188,6 @@ export default {
   selectUserReportCntByStatus,
   selectUserReportingCnt,
   selectUserReportedCnt,
+  selectReportCntByTime,
+  selectReportCategoryByTier,
 };

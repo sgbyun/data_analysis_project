@@ -5,6 +5,26 @@ import { login_required } from "../middlewares/login_required.js";
 
 const statsController = Router();
 
+// 총 이용자 수
+statsController.get("/stats/userTotalCnt", async (req, res) => {
+  try {
+    const userTotalCnt = await statisticsService.getUserTotalCount();
+    res.status(200).json(userTotalCnt);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// 전체 신고 건수
+statsController.get("/stats/reportTotalCnt", async (req, res) => {
+  try {
+    const userTotalCnt = await statisticsService.getReportTotalCount();
+    res.status(200).json(userTotalCnt);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
 // 성별
 statsController.get("/stats/genderRatio", async (req, res) => {
   try {
@@ -134,5 +154,28 @@ statsController.get(
     res.status(200).json({ userReportedCnt, userReportingCnt });
   }
 );
+
+// 시간대별 욕설 당한 횟수
+statsController.get("/stats/reportCntByTime", async (req, res) => {
+  try {
+    const reportCntByTime = await statisticsService.getReportCntByTime();
+    res.status(200).json(reportCntByTime);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// 롤 티어별 욕설 분류 1위
+statsController.get("/stats/reportCategoryByTier", async (req, res) => {
+  try {
+    const reportCategoryByTier =
+      await statisticsService.getReportCategoryByTier();
+    const reportTierTotalCnt = await statisticsService.getReportTierRatio();
+
+    res.status(200).json({ reportCategoryByTier, reportTierTotalCnt });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 
 export { statsController };
