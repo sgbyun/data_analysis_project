@@ -70,20 +70,6 @@ reportController.get("/report/my", login_required, async (req, res) => {
   }
 });
 
-// 관리자 - 들어온 신고 조회
-reportController.get(
-  "/admin/report",
-  login_required,
-  adminValidation,
-  async (req, res) => {
-    try {
-      const reports = await reportService.getAllReports();
-      res.status(200).json(reports);
-    } catch (error) {
-      res.status(500).json("error");
-    }
-  }
-);
 // 관리자 - 들어온 report case에 대한 욕설 목록 반환
 reportController.get(
   "/admin/report/:reportId",
