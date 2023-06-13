@@ -3,7 +3,6 @@ import userModel from "../users/userModel.js";
 import jwt from "jsonwebtoken";
 import { verifyPassword } from "../utils/verifyPassword.js";
 
-
 class userService {
   static async addUser(user) {
     try {
@@ -31,6 +30,19 @@ class userService {
       } else {
         throw error; // 오류를 그대로 던져서 처리합니다.
       }
+    }
+  }
+
+  static async changePassword(user) {
+    try {
+      const queryUpdate = userModel.updatePassword;
+      const result = await connection
+        .promise()
+        .query(queryUpdate, [user.password, user.emailId]);
+      const queryDelete = userModel.deleteKey;
+      await connection.promise().query(queryDelete, [user.emailId]);
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 
@@ -101,6 +113,26 @@ class userService {
           "비밀번호가 일치하지 않습니다. 다시 한 번 확인해 주세요."
         );
       }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async addKey(emailId, authKey) {
+    try {
+      const query = userModel.insertKey;
+      console.log(emailId, authKey);
+      await connection.promise().query(query, [emailId, authKey]);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async getKey(emailId) {
+    try {
+      const query = userModel.selectKey;
+      const result = await connection.promise().query(query, [emailId]);
+      return result[0][0];
     } catch (error) {
       throw new Error(error.message);
     }

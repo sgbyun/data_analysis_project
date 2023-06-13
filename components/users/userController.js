@@ -4,6 +4,8 @@ import { User } from "./User.js";
 import { login_required } from "../middlewares/login_required.js";
 import { userLoginFunction } from "../utils/userLogin.js";
 import registerController from "../utils/registerController.js";
+import { sendEmail } from "../utils/findPassword.js";
+import { hashPassword } from "../utils/hashPassword.js";
 
 // ...이하 코드 생략...
 
@@ -12,6 +14,41 @@ const userController = Router();
 userController.post("/user/login", userLoginFunction);
 
 userController.post("/user/register", registerController);
+
+userController.post("/findPassword", async (req, res) => {
+  try {
+    const authKey = String(Math.floor(Math.random() * 1000000)).padStart(
+      6,
+      "0"
+    );
+    const emailId = req.body.emailId;
+    const result = await sendEmail(emailId, authKey);
+    await userService.addKey(emailId, authKey);
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+userController.get("/findPassword/:emailId", async (req, res) => {
+  try {
+    const emailId = req.params.emailId;
+    const result = await userService.getKey(emailId);
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+userController.post("/changePassword", async (req, res) => {
+  const { emailId, password } = req.body;
+  const user = new User(emailId, password);
+  user.password = await hashPassword(password);
+  await userService.changePassword(user);
+  res.status(201).json("비밀번호 변경 완료");
+});
 
 userController.get("/userlist", login_required, async (req, res) => {
   try {
