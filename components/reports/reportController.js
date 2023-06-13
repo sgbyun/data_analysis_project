@@ -122,33 +122,38 @@ reportController.patch(
 );
 
 // 신고목록 조회
-reportController.get("/admin/report", async (req, res) => {
-  try {
-    const { sort, status, currentPage } = req.query;
-    const rowPerpage = 10;
-    const currentPageNumber = parseInt(currentPage, 10);
+reportController.get(
+  "/admin/report",
+  login_required,
+  adminValidation,
+  async (req, res) => {
+    try {
+      const { sort, status, currentPage } = req.query;
+      const rowPerpage = 10;
+      const currentPageNumber = parseInt(currentPage, 10);
 
-    const totalReportsCnt = await reportService.getTotalReportCntBy(status);
-    let startIndex = (currentPage - 1) * rowPerpage;
-    if (startIndex < 0) {
-      startIndex = 0;
+      const totalReportsCnt = await reportService.getTotalReportCntBy(status);
+      let startIndex = (currentPage - 1) * rowPerpage;
+      if (startIndex < 0) {
+        startIndex = 0;
+      }
+      const reports = await reportService.getReportsBy(
+        startIndex,
+        rowPerpage,
+        sort,
+        status
+      );
+
+      return res.status(200).json({
+        totalReportsCnt,
+        currentPageNumber,
+        totalPages: Math.ceil(totalReportsCnt / rowPerpage),
+        data: reports,
+      });
+    } catch (error) {
+      res.status(500).json("error");
     }
-    const reports = await reportService.getReportsBy(
-      startIndex,
-      rowPerpage,
-      sort,
-      status
-    );
-
-    return res.status(200).json({
-      totalReportsCnt,
-      currentPageNumber,
-      totalPages: Math.ceil(totalReportsCnt / rowPerpage),
-      data: reports,
-    });
-  } catch (error) {
-    res.status(500).json("error");
   }
-});
+);
 
 export { reportController };
