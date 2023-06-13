@@ -81,8 +81,8 @@ FROM abuse_score
 WHERE report_id IN (
   SELECT id report_id
   FROM report
-  WHERE attacker_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-);
+  WHERE attacker_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) AND status = 'completed'
+) AND category_name != 'clean'
 `;
 
 // 유저의 카테고리별 신고 당한 횟수

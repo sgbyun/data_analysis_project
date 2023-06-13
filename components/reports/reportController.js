@@ -86,6 +86,26 @@ reportController.get(
     }
   }
 );
+// 관리자 - 욕설 문장 카테고리 변경 적용
+reportController.patch(
+  "/admin/report/detail",
+  login_required,
+  adminValidation,
+  async (req, res) => {
+    try {
+      const { reportId, categoryName, content } = req.body;
+      const reportCategory = new ReportCategory(
+        reportId,
+        categoryName,
+        content
+      );
+      await reportService.updateCategory(reportCategory);
+      res.status(200).json("신고 카테고리 재설정 완료");
+    } catch (error) {
+      res.status(500).json("error");
+    }
+  }
+);
 // 관리자 - 들어온 report case에 대한 사진 반환
 reportController.get(
   "/admin/reportphoto/:reportId",
@@ -96,8 +116,6 @@ reportController.get(
       const reportId = req.params.reportId;
       const report = new Report(reportId);
       const photoPath = await reportService.getPhotoByreportId(report);
-      console.log(__dirname);
-      console.log(__filename);
       const absolutePath = join(__dirname, "../..", photoPath);
       res.sendFile(absolutePath);
     } catch (error) {
