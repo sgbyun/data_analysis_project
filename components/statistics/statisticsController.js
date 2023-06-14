@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Router } from "express";
 import { statisticsService } from "./statisticsService.js";
-import { login_required } from "../middlewares/login_required.js";
+import { loginRequired } from "../middlewares/loginRequired.js";
 
 const statsController = Router();
 
@@ -120,7 +120,7 @@ statsController.get("/stats/basic/:lolId", async (req, res) => {
 // 유저의 카테고리별 신고 당한 건수
 statsController.get(
   "/stats/userReportedByCategory/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportByCategory =
@@ -132,7 +132,7 @@ statsController.get(
 // 유저의 승인된 신고 건수 미승인된 건수
 statsController.get(
   "/stats/userReportCntByStatus/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportByStatusCnt =
@@ -144,7 +144,7 @@ statsController.get(
 // 유저의 신고 당한 건수, 신고한 건수
 statsController.get(
   "/stats/userReportCnt/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportedCnt = await statisticsService.getUserReportedCnt(emailId);
@@ -173,6 +173,34 @@ statsController.get("/stats/reportCategoryByTier", async (req, res) => {
     const reportTierTotalCnt = await statisticsService.getReportTierRatio();
 
     res.status(200).json({ reportCategoryByTier, reportTierTotalCnt });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// 검색한 유저의 총 신고당한 건수
+statsController.get(
+  "/stats/searchLolUserReportCntByCategory/:lolId",
+  async (req, res) => {
+    try {
+      const lolId = req.params.lolId;
+      console.log(lolId);
+      const searchLolUserReportCntByCategory =
+        await statisticsService.getSearchLolUserReportCntByCategory(lolId);
+
+      res.status(200).json({ searchLolUserReportCntByCategory });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
+);
+
+// 시간대 별 욕설 당한 횟수
+statsController.get("/stats/reportCntByTime", async (req, res) => {
+  try {
+    const reportCntByTime = await statisticsService.getReportCntByTime(lolId);
+
+    res.status(200).json({ reportCntByTime });
   } catch (error) {
     res.status(500).json({ error });
   }

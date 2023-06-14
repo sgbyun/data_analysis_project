@@ -22,35 +22,35 @@ const selectReportDiamondCnt = `SELECT count(*) diamond FROM lol_user lu inner J
 // 플래티넘 티어 누적 신고
 const selectReportPlatinumCnt = `SELECT count(*) platinum FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = platinum`;
 // 골드 티어 누적 신고
-const selectReportGoldCnt = `SELECT count(*) FROM gold lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = gold`;
+const selectReportGoldCnt = `SELECT count(*) gold FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = gold`;
 // 실버 티어 누적 신고
-const selectReportSliverCnt = `SELECT count(*) FROM silver lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = silver`;
+const selectReportSliverCnt = `SELECT count(*) silver FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = silver`;
 // 브론즈 티어 누적 신고
 const selectReportBronzeCnt = `SELECT count(*) bronze FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = bronze`;
 // 아이언 티어 누적 신고
 const selectReportIronCnt = `SELECT count(*) iron FROM lol_user lu inner JOIN report r on lu.lol_id = r.attacker_id WHERE lu.tier = iron`;
 // 신고 누적 상위 10명
-const selecteportLoluserTopTen = ` SELECT attacker_id, COUNT(*) count
+const selecteportLoluserTopTen = ` SELECT attacker_id attackerId, COUNT(*) count
 FROM report
 WHERE status = 'completed'
 GROUP BY attacker_id
 ORDER BY count DESC
 LIMIT 10 `;
 // 신고된 카테고리 누적횟수
-const selectAbuseCntByCategory = `SELECT category_name, COUNT(*) AS category_count
+const selectAbuseCntByCategory = `SELECT category_name categoryName, COUNT(*) count
 FROM abuse_score AS a
 JOIN report r ON a.report_id = r.id
 WHERE r.status = 'completed'
 GROUP BY category_name;
 ;`;
 // 월별 신고 누적 횟수
-const selectReportCntByMonth = `SELECT DATE_FORMAT(violence_at, '%m') month, COUNT(*) report_count
+const selectReportCntByMonth = `SELECT DATE_FORMAT(violence_at, '%m') month, COUNT(*) count
 FROM report
 WHERE status = 'completed'
 GROUP BY month;
 `;
 // manner_grade별 cnt
-const selectLoluserCntByMannerGrade = `SELECT manner_grade, COUNT(*) grade_count
+const selectLoluserCntByMannerGrade = `SELECT manner_grade, COUNT(*) count
 FROM lol_user
 GROUP BY manner_grade;
 `;
@@ -139,20 +139,20 @@ SELECT
         WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 18 AND 19 THEN '18-20'
         WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 20 AND 21 THEN '20-22'
         WHEN EXTRACT(HOUR FROM violence_at) BETWEEN 22 AND 23 THEN '22-24'
-    END hour_range
+    END hourRange
 FROM report
 WHERE
     status = 'completed'
     AND EXTRACT(HOUR FROM violence_at) BETWEEN 0 AND 23
-GROUP BY hour_range
+GROUP BY hourRange
 ORDER BY MIN(EXTRACT(HOUR FROM violence_at))
 `;
 
 // 롤 티어별 욕설 분류 1위 값
 const selectReportCategoryByTier = `
-SELECT t.tier, t.category_name, t.max_count
+SELECT t.tier tier, t.category_name categoryName, t.max_count maxCount
 FROM (
-    SELECT lu.tier, a.category_name, COUNT(*) count, MAX(COUNT(*)) OVER (PARTITION BY lu.tier) max_count
+    SELECT lu.tier tier, a.category_name , COUNT(*) count, MAX(COUNT(*)) OVER (PARTITION BY lu.tier) maxCount
     FROM lol_user lu
     INNER JOIN report r ON lu.lol_id = r.attacker_id 
     INNER JOIN abuse_score a ON r.id = a.report_id
@@ -161,6 +161,15 @@ FROM (
     GROUP BY lu.tier, a.category_name
 ) t
 WHERE t.count = t.max_count
+`;
+
+// 검색한 유저의 카테고리별 신고당한 건수
+const selectSearchLolUserReportCntByCategory = `
+SELECT count(*) count, a.category_name categoryName
+FROM report r
+INNER JOIN abuse_score a ON r.id = a.report_id 
+WHERE attacker_id = ? AND status = 'completed'
+GROUP BY a.category_name
 `;
 
 export default {
@@ -190,4 +199,5 @@ export default {
   selectUserReportedCnt,
   selectReportCntByTime,
   selectReportCategoryByTier,
+  selectSearchLolUserReportCntByCategory,
 };

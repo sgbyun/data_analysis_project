@@ -3,7 +3,7 @@ import { Report, ReportCategory, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
 import multer from "multer";
 import fs from "fs";
-import { login_required } from "../middlewares/login_required.js";
+import { loginRequired } from "../middlewares/loginRequired.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { adminValidation } from "../middlewares/adminValidation.js";
@@ -30,7 +30,7 @@ const upload = multer({
 // 신고 등록
 reportController.post(
   "/report/register",
-  login_required,
+  loginRequired,
   upload.single("reportImage"),
   async (req, res) => {
     try {
@@ -60,7 +60,7 @@ reportController.post(
   }
 );
 
-reportController.get("/report/my", login_required, async (req, res) => {
+reportController.get("/report/my", loginRequired, async (req, res) => {
   try {
     const emailId = req.currentEmailId;
     const reports = await reportService.getReportsByEmailId(emailId);
@@ -73,7 +73,7 @@ reportController.get("/report/my", login_required, async (req, res) => {
 // 관리자 - 들어온 report case에 대한 욕설 목록 반환
 reportController.get(
   "/admin/report/:reportId",
-  login_required,
+  loginRequired,
   adminValidation,
   async (req, res) => {
     try {
@@ -89,7 +89,7 @@ reportController.get(
 // 관리자 - 욕설 문장 카테고리 변경 적용
 reportController.patch(
   "/admin/report/detail",
-  login_required,
+  loginRequired,
   adminValidation,
   async (req, res) => {
     try {
@@ -109,7 +109,7 @@ reportController.patch(
 // 관리자 - 들어온 report case에 대한 사진 반환
 reportController.get(
   "/admin/reportphoto/:reportId",
-  login_required,
+  loginRequired,
   adminValidation,
   async (req, res) => {
     try {
@@ -127,7 +127,7 @@ reportController.get(
 // 관리자 - 신고처리 (신고 상태변경), lol_user 테이블 report_count 갱신
 reportController.patch(
   "/admin/status",
-  login_required,
+  loginRequired,
   adminValidation,
   async (req, res) => {
     const { reportId, status } = req.body;
@@ -142,7 +142,7 @@ reportController.patch(
 // 신고목록 조회
 reportController.get(
   "/admin/report",
-  login_required,
+  loginRequired,
   adminValidation,
   async (req, res) => {
     try {
