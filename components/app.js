@@ -5,6 +5,9 @@ import { lolUserController } from "./lol_user/lolUserController.js";
 import { reportController } from "./reports/reportController.js";
 import { statsController } from "./statistics/statisticsController.js";
 import { testController } from "./test/test.js";
+// passport 설정 코드를 추가합니다.
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 const app = express();
 
@@ -24,4 +27,28 @@ app.use(lolUserController);
 app.use(reportController);
 app.use(statsController);
 app.use(testController);
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      callbackURL: "http://localhost:3000/login/google/callback",
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
+    }
+  )
+);
+
+app.use(userController);
+
 export { app };

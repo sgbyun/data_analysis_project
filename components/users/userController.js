@@ -4,6 +4,8 @@ import { User } from "./User.js";
 import { login_required } from "../middlewares/login_required.js";
 import { userLoginFunction } from "../utils/userLogin.js";
 import registerController from "../utils/registerController.js";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 // ...이하 코드 생략...
 
@@ -74,4 +76,38 @@ userController.delete("/user/:emailId", login_required, async (req, res) => {
   }
 });
 
+userController.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+userController.get(
+  "/login/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login/error" }),
+  (req, res) => {
+    // 콜백 성공 시 처리할 로직
+    res.redirect("/"); // 예시로 메인 페이지로 리다이렉트
+  }
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      callbackURL: "http://localhost:3000/login/google/callback",
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
+    }
+  )
+);
 export { userController };
