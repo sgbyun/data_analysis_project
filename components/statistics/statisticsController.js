@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Router } from "express";
 import { statisticsService } from "./statisticsService.js";
-import { login_required } from "../middlewares/loginRequired.js";
+import { loginRequired } from "../middlewares/loginRequired.js";
 
 const statsController = Router();
 
@@ -120,7 +120,7 @@ statsController.get("/stats/basic/:lolId", async (req, res) => {
 // 유저의 카테고리별 신고 당한 건수
 statsController.get(
   "/stats/userReportedByCategory/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportByCategory =
@@ -132,7 +132,7 @@ statsController.get(
 // 유저의 승인된 신고 건수 미승인된 건수
 statsController.get(
   "/stats/userReportCntByStatus/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportByStatusCnt =
@@ -144,7 +144,7 @@ statsController.get(
 // 유저의 신고 당한 건수, 신고한 건수
 statsController.get(
   "/stats/userReportCnt/:emailId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     const emailId = req.currentEmailId;
     const userReportedCnt = await statisticsService.getUserReportedCnt(emailId);

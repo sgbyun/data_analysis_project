@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Router } from "express";
 import { lolUserService } from "./lolUserService.js";
 import { LolUser } from "./lolUser.js";
-import { login_required } from "../middlewares/loginRequired.js";
+import { loginRequired } from "../middlewares/loginRequired.js";
 
 const lolUserController = Router();
 
@@ -31,7 +31,7 @@ lolUserController.post("/lolUser/register", async (req, res) => {
   }
 });
 
-lolUserController.get("/lolUser/my", login_required, async (req, res) => {
+lolUserController.get("/lolUser/my", loginRequired, async (req, res) => {
   try {
     const emailId = req.currentEmailId;
     const userInfo = await lolUserService.getLolUserByEmailId(emailId);
@@ -69,7 +69,7 @@ lolUserController.get("/lolUser/update/:lolId", async (req, res) => {
 
 lolUserController.put(
   "/lolUser/report/:lolId",
-  login_required,
+  loginRequired,
   async (req, res) => {
     try {
       const lolId = req.params.lolId;

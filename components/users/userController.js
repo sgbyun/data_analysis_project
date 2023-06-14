@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userService } from "./userService.js"; // userService를 중괄호로 감싸지 않음
 import { User } from "./User.js";
-import { login_required } from "../middlewares/loginRequired.js";
+import { loginRequired } from "../middlewares/loginRequired.js";
 import { userLoginFunction } from "../utils/userLogin.js";
 import registerController from "../utils/registerController.js";
 import { sendEmail } from "../utils/findPassword.js";
@@ -50,7 +50,7 @@ userController.post("/changePassword", async (req, res) => {
   res.status(201).json("비밀번호 변경 완료");
 });
 
-userController.get("/userlist", login_required, async (req, res) => {
+userController.get("/userlist", loginRequired, async (req, res) => {
   try {
     const result = await userService.getUsers();
     res.status(200).json(result);
@@ -59,7 +59,7 @@ userController.get("/userlist", login_required, async (req, res) => {
   }
 });
 
-userController.get("/user/:emailId", login_required, async (req, res) => {
+userController.get("/user/:emailId", loginRequired, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const result = await userService.getUserOne({ emailId });
@@ -70,7 +70,7 @@ userController.get("/user/:emailId", login_required, async (req, res) => {
   }
 });
 
-userController.put("/user/:emailId", login_required, async (req, res) => {
+userController.put("/user/:emailId", loginRequired, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const { password, nickname, name, isMale, lolId } = req.body;
@@ -101,7 +101,7 @@ userController.put("/user/:emailId", login_required, async (req, res) => {
 });
 
 // 코치님 피드백
-userController.delete("/user/:emailId", login_required, async (req, res) => {
+userController.delete("/user/:emailId", loginRequired, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     await userService.removeUser({ emailId });
