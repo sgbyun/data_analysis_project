@@ -202,6 +202,24 @@ class statisticsService {
     )[0];
     return reportCategoryByTier;
   }
+
+  // 검색한 유저의 총 신고당한 건수
+  static async getSearchLolUserReportCntByCategory(lolId) {
+    const searchLolUserReportCntByCategory = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectSearchLolUserReportCntByCategory, [lolId])
+    )[0];
+    return searchLolUserReportCntByCategory;
+  }
+
+  // 시간대 별 욕설 당한 횟수
+  static async getReportCntByTime() {
+    const reportCntByTime = (
+      await connection.promise().query(statisticsModel.selectReportCntByTime)
+    )[0];
+    return reportCntByTime;
+  }
 }
 
 export { statisticsService };

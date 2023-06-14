@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userService } from "./userService.js"; // userService를 중괄호로 감싸지 않음
 import { User } from "./User.js";
-import { login_required } from "../middlewares/login_required.js";
+import { login_required } from "../middlewares/loginRequired.js";
 import { userLoginFunction } from "../utils/userLogin.js";
 import registerController from "../utils/registerController.js";
 import { sendEmail } from "../utils/findPassword.js";

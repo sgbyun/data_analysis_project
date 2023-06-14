@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Router } from "express";
 import { statisticsService } from "./statisticsService.js";
-import { login_required } from "../middlewares/login_required.js";
+import { login_required } from "../middlewares/loginRequired.js";
 
 const statsController = Router();
 
@@ -173,6 +173,34 @@ statsController.get("/stats/reportCategoryByTier", async (req, res) => {
     const reportTierTotalCnt = await statisticsService.getReportTierRatio();
 
     res.status(200).json({ reportCategoryByTier, reportTierTotalCnt });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+// 검색한 유저의 총 신고당한 건수
+statsController.get(
+  "/stats/searchLolUserReportCntByCategory/:lolId",
+  async (req, res) => {
+    try {
+      const lolId = req.params.lolId;
+      console.log(lolId);
+      const searchLolUserReportCntByCategory =
+        await statisticsService.getSearchLolUserReportCntByCategory(lolId);
+
+      res.status(200).json({ searchLolUserReportCntByCategory });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
+);
+
+// 시간대 별 욕설 당한 횟수
+statsController.get("/stats/reportCntByTime", async (req, res) => {
+  try {
+    const reportCntByTime = await statisticsService.getReportCntByTime(lolId);
+
+    res.status(200).json({ reportCntByTime });
   } catch (error) {
     res.status(500).json({ error });
   }

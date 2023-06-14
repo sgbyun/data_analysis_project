@@ -3,7 +3,6 @@ class LolUser {
     lolId,
     reportCount,
     mannerGrade,
-    encryptedId,
     level,
     rank,
     tier,
@@ -15,7 +14,6 @@ class LolUser {
     this._lolId = lolId;
     this._reportCount = reportCount;
     this._mannerGrade = mannerGrade;
-    this._encryptedId = encryptedId;
     this._level = level;
     this._rank = rank;
     this._tier = tier;
@@ -36,10 +34,6 @@ class LolUser {
 
   get mannerGrade() {
     return this._mannerGrade;
-  }
-
-  get encryptedId() {
-    return this._encryptedId;
   }
 
   get level() {
@@ -81,10 +75,6 @@ class LolUser {
 
   set mannerGrade(mannerGrade) {
     this._mannerGrade = mannerGrade;
-  }
-
-  set encryptedId(encryptedId) {
-    this._encryptedId = encryptedId;
   }
 
   set level(level) {

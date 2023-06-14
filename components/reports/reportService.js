@@ -131,7 +131,7 @@ class reportService {
       if (status == "all") {
         const result = await connection
           .promise()
-          .query(reportModel.selectReportsByAsc);
+          .query(reportModel.selectReportsByAsc, [startIndex, rowPerPage]);
         return result[0];
       } else {
         const result = await connection
@@ -147,7 +147,7 @@ class reportService {
       if (status == "all") {
         const result = await connection
           .promise()
-          .query(reportModel.selectReports);
+          .query(reportModel.selectReports, [startIndex, rowPerPage]);
         return result[0];
       } else {
         const result = await connection

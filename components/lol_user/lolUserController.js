@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Router } from "express";
 import { lolUserService } from "./lolUserService.js";
 import { LolUser } from "./lolUser.js";
-import { login_required } from "../middlewares/login_required.js";
+import { login_required } from "../middlewares/loginRequired.js";
 
 const lolUserController = Router();
 

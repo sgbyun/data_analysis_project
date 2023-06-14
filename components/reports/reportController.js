@@ -3,7 +3,7 @@ import { Report, ReportCategory, ReportImg } from "./Report.js";
 import { reportService } from "./reportService.js";
 import multer from "multer";
 import fs from "fs";
-import { login_required } from "../middlewares/login_required.js";
+import { login_required } from "../middlewares/loginRequired.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { adminValidation } from "../middlewares/adminValidation.js";
