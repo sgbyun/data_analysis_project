@@ -3,3 +3,4 @@ node_modules
 /upload
 google_api_key.json
 /components/reports/reported_img
+/logs

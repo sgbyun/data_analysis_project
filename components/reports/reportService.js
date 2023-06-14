@@ -2,6 +2,7 @@ import { connection } from "../../index.js";
 import reportModel from "./reportModel.js";
 import { ImageAnnotatorClient } from "@google-cloud/vision";
 import axios from "axios";
+import { logger } from "../utils/winston.js";
 
 const client = new ImageAnnotatorClient({
   keyFilename: "./google_api_key.json",
@@ -19,7 +20,7 @@ class reportService {
           report.content,
           report.violenceAt,
         ]);
-
+      logger.info("리포트 등록중 1. 테이블에 등록 성공");
       const reportId = await connection
         .promise()
         .query(reportModel.selectRecent, [report.userId]);
@@ -32,7 +33,7 @@ class reportService {
           reportImg.originalName,
           reportImg.mimetype,
         ]);
-
+      logger.info("리포트 등록중 2. 사진 테이블에 등록 성공");
       const [result] = await client.textDetection(reportImg.path);
       const annotations = result.textAnnotations;
       const textArray = annotations.map(
@@ -58,6 +59,7 @@ class reportService {
             };
         }
       });
+      logger.info("리포트 등록중 3. 구글 api 연결 성공");
       for (let i = 0; i < messages.length; i++) {
         if (messages[i]) {
           axios
@@ -71,9 +73,10 @@ class reportService {
                   responseData,
                   messages[i].message,
                 ]);
+              logger.info("리포트 등록중 4.플라스크 서버 연결 성공");
             })
             .catch((error) => {
-              console.error("서버 요청 실패");
+              logger.error("리포트 등록 중 4.플라스크 서버 연결 실패");
               const responseData = "clean"; // 서버 요청 실패 시 "clean"을 사용
               connection
                 .promise()

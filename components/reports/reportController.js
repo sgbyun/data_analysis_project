@@ -7,6 +7,7 @@ import { loginRequired } from "../middlewares/loginRequired.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { adminValidation } from "../middlewares/adminValidation.js";
+import { logger } from "../utils/winston.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,9 +53,10 @@ reportController.post(
       const reportImg = new ReportImg(null, null, path, originalname, mimetype);
 
       await reportService.addReport(report, reportImg);
-
+      logger.info("리포트 등록 성공");
       res.status(201).json("신고 완료");
     } catch (error) {
+      logger.error("리포트 등록 실패");
       res.status(500).json("error");
     }
   }
@@ -64,8 +66,10 @@ reportController.get("/report/my", loginRequired, async (req, res) => {
   try {
     const emailId = req.currentEmailId;
     const reports = await reportService.getReportsByEmailId(emailId);
+    logger.info("리포트 목록 불러오기 성공", reports);
     res.status(200).json(reports);
   } catch (error) {
+    logger.error("리포트 목록 불러오기 실패");
     res.status(500).json("error");
   }
 });
@@ -80,8 +84,10 @@ reportController.get(
       const reportId = req.params.reportId;
       const report = new Report(reportId);
       const responseReport = await reportService.getCategoryByreportId(report);
+      logger.info("report case에 대한 욕설 목록 반환 성공", responseReport);
       res.status(200).json(responseReport);
     } catch (error) {
+      logger.error("report case에 대한 욕설 목록 반환 실패");
       res.status(500).json("error");
     }
   }
@@ -100,8 +106,10 @@ reportController.patch(
         content
       );
       await reportService.updateCategory(reportCategory);
+      logger.info("욕설 카테고리 변경 성공");
       res.status(200).json("신고 카테고리 재설정 완료");
     } catch (error) {
+      logger.error("욕설 카테고리 변경 실패");
       res.status(500).json("error");
     }
   }
@@ -117,8 +125,10 @@ reportController.get(
       const report = new Report(reportId);
       const photoPath = await reportService.getPhotoByreportId(report);
       const absolutePath = join(__dirname, "../..", photoPath);
+      logger.info("report case에 대한 사진 반환 성공");
       res.sendFile(absolutePath);
     } catch (error) {
+      logger.error("report case 에 대한 사진 반환 실패");
       res.status(500).json("error");
     }
   }
@@ -130,12 +140,17 @@ reportController.patch(
   loginRequired,
   adminValidation,
   async (req, res) => {
-    const { reportId, status } = req.body;
-    const report = new Report(reportId, null, null, status);
+    try {
+      const { reportId, status } = req.body;
+      const report = new Report(reportId, null, null, status);
 
-    await reportService.updateReport(report);
-
-    return res.status(200).json("상태 업데이트 완료");
+      await reportService.updateReport(report);
+      logger.info("신고 상태 변경 성공");
+      res.status(200).json("상태 업데이트 완료");
+    } catch (error) {
+      logger.error("신고 상태 변경 실패");
+      res.status(500).json("error");
+    }
   }
 );
 
@@ -162,6 +177,7 @@ reportController.get(
         status
       );
 
+      logger.info("신고 목록 조회 성공");
       return res.status(200).json({
         totalReportsCnt,
         currentPageNumber,
@@ -169,6 +185,7 @@ reportController.get(
         data: reports,
       });
     } catch (error) {
+      logger.error("신고 목록 조회 실패");
       res.status(500).json("error");
     }
   }

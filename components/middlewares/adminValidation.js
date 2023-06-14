@@ -1,4 +1,5 @@
 import { connection } from "../../index.js";
+import { logger } from "../utils/winston.js";
 
 export function adminValidation(req, res, next) {
   const emailId = req.currentEmailId;
@@ -8,7 +9,7 @@ export function adminValidation(req, res, next) {
     [emailId],
     (err, results) => {
       if (err) {
-        console.error("sql 쿼리 오류", err);
+        logger.error("sql 쿼리 오류", err);
         res.status(500).send("server error");
         return;
       }

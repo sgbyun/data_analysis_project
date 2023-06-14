@@ -6,6 +6,7 @@ import { userLoginFunction } from "../utils/userLogin.js";
 import registerController from "../utils/registerController.js";
 import { sendEmail } from "../utils/findPassword.js";
 import { hashPassword } from "../utils/hashPassword.js";
+import { logger } from "../utils/winston.js";
 
 // ...이하 코드 생략...
 
@@ -24,9 +25,10 @@ userController.post("/findPassword", async (req, res) => {
     const emailId = req.body.emailId;
     const result = await sendEmail(emailId, authKey);
     await userService.addKey(emailId, authKey);
-
+    logger.info("유저 인증번호 발송 성공");
     res.status(201).json(result);
   } catch (error) {
+    logger.error("유저 인증번호 발송 실패");
     res.status(500).json({ error: error.message });
   }
 });
@@ -35,26 +37,35 @@ userController.get("/findPassword/:emailId", async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const result = await userService.getKey(emailId);
-
+    logger.info("유저 인증번호 불러오기 성공", result);
     res.status(201).json(result);
   } catch (error) {
+    logger.error("유저 인증번호 불러오기 실패");
     res.status(500).json({ error: error.message });
   }
 });
 
 userController.post("/changePassword", async (req, res) => {
-  const { emailId, password } = req.body;
-  const user = new User(emailId, password);
-  user.password = await hashPassword(password);
-  await userService.changePassword(user);
-  res.status(201).json("비밀번호 변경 완료");
+  try {
+    const { emailId, password } = req.body;
+    const user = new User(emailId, password);
+    user.password = await hashPassword(password);
+    await userService.changePassword(user);
+    logger.info("유저 비밀번호 변경 성공");
+    res.status(201).json("비밀번호 변경 완료");
+  } catch (error) {
+    logger.error("유저 비밀번호 변경 실패");
+    res.status(500).json({ error: error.message });
+  }
 });
 
 userController.get("/userlist", loginRequired, async (req, res) => {
   try {
     const result = await userService.getUsers();
+    logger.info("전체 유저 목록 불러오기 성공", result);
     res.status(200).json(result);
   } catch {
+    logger.error("전체 유저 목록 불러오기 실패");
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -63,9 +74,10 @@ userController.get("/user/:emailId", loginRequired, async (req, res) => {
   try {
     const emailId = req.params.emailId;
     const result = await userService.getUserOne({ emailId });
-
+    logger.info("이메일로 유저 찾기 성공", result);
     res.status(200).json(result);
   } catch {
+    logger.error("이메일로 유저 찾기 실패");
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -76,7 +88,6 @@ userController.put("/user/:emailId", loginRequired, async (req, res) => {
     const { password, nickname, name, isMale, lolId } = req.body;
 
     const user = await userService.getUserOne({ emailId });
-    console.log("userController user : ", user);
 
     if (!user) {
       return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
@@ -94,8 +105,10 @@ userController.put("/user/:emailId", loginRequired, async (req, res) => {
     );
 
     await userService.setUser(updatedUser);
+    logger.info("유저 정보 수정 성공");
     res.status(201).json("정보 수정 성공");
   } catch (error) {
+    logger.error("유저 정보 수정 실패");
     res.status(500).json({ error: error.message });
   }
 });

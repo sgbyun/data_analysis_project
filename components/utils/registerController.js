@@ -1,6 +1,7 @@
 import { validateEmail, validatePassword } from "../utils/validationUtils.js";
 import { userService } from "../users/userService.js";
 import { User } from "../users/User.js";
+import { logger } from "./winston.js";
 import bcrypt from "bcrypt";
 
 const registerController = async (req, res) => {
@@ -43,13 +44,14 @@ const registerController = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
     user.password = hashedPassword;
-    // console.log(user.password);
 
     user.deleted_at = "NOW()";
 
     await userService.addUser(user);
+    logger.info("/Post user success");
     res.status(201).json("계정 생성 성공");
   } catch (error) {
+    logger.error("/Post user failed");
     if (error.message.includes("이미 등록된 이메일입니다.")) {
       res.status(400).json({ error: error.message });
     } else {
