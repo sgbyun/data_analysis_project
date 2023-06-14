@@ -8,7 +8,7 @@ const selectReportCnt = `SELECT count(*) count FROM report WHERE status= 'comple
 const selectTierReportCnt = `SELECT lu.tier, COUNT(*) count
 FROM lol_user lu
 INNER JOIN report r ON lu.lol_id = r.attacker_id 
-WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
+WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron','unranked')
 	AND r.status = 'completed' 
 GROUP BY lu.tier `;
 // 챌린저 티어 누적 신고
