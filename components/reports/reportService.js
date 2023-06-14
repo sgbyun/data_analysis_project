@@ -129,6 +129,24 @@ class reportService {
     }
   }
 
+  static async getEmailReportCntBy(status, emailId) {
+    try {
+      if (status === "all") {
+        const emailReportCnt = await connection
+          .promise()
+          .query(reportModel.selectEmailReportCnt, [emailId]);
+        return emailReportCnt[0][0]["count(*)"];
+      } else {
+        const emailReportCnt = await connection
+          .promise()
+          .query(reportModel.selectEmailReportCntBy, [status, emailId]);
+        return emailReportCnt[0][0]["count(*)"];
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   static async getReportsBy(startIndex, rowPerPage, sort, status) {
     if (sort == "old") {
       if (status == "all") {
@@ -156,6 +174,58 @@ class reportService {
         const result = await connection
           .promise()
           .query(reportModel.selectReportsByNew, [
+            status,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      }
+    }
+  }
+
+  static async getReportsByEmail(
+    emailId,
+    startIndex,
+    rowPerPage,
+    sort,
+    status
+  ) {
+    if (sort == "old") {
+      if (status == "all") {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByEmailAsc, [
+            emailId,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      } else {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByEmailOld, [
+            emailId,
+            status,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      }
+    } else if (sort == "new") {
+      if (status == "all") {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByEmailDesc, [
+            emailId,
+            startIndex,
+            rowPerPage,
+          ]);
+        return result[0];
+      } else {
+        const result = await connection
+          .promise()
+          .query(reportModel.selectReportsByEmailNew, [
+            emailId,
             status,
             startIndex,
             rowPerPage,

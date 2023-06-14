@@ -47,7 +47,7 @@ reportController.post(
         content,
         violenceAt
       );
-
+      console.log(violenceAt);
       const reportImage = req.file;
       const { mimetype, originalname, path } = reportImage;
       const reportImg = new ReportImg(null, null, path, originalname, mimetype);
@@ -65,11 +65,34 @@ reportController.post(
 reportController.get("/report/my", loginRequired, async (req, res) => {
   try {
     const emailId = req.currentEmailId;
-    const reports = await reportService.getReportsByEmailId(emailId);
-    logger.info("리포트 목록 불러오기 성공", reports);
-    res.status(200).json(reports);
+    const { sort, status, currentPage } = req.query;
+    const rowPerpage = 10;
+    const currentPageNumber = parseInt(currentPage, 10);
+    const emailReportsCnt = await reportService.getEmailReportCntBy(
+      status,
+      emailId
+    );
+    let startIndex = (currentPage - 1) * rowPerpage;
+    if (startIndex < 0) {
+      startIndex = 0;
+    }
+    const reports = await reportService.getReportsByEmail(
+      emailId,
+      startIndex,
+      rowPerpage,
+      sort,
+      status
+    );
+
+    logger.info("유저 신고 목록 불러오기 성공", reports);
+    res.status(200).json({
+      emailReportsCnt,
+      currentPageNumber,
+      totalPages: Math.ceil(emailReportsCnt / rowPerpage),
+      data: reports,
+    });
   } catch (error) {
-    logger.error("리포트 목록 불러오기 실패");
+    logger.error("유저 신고 목록 불러오기 실패");
     res.status(500).json("error");
   }
 });

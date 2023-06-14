@@ -25,8 +25,15 @@ const selectReportsByAsc = `SELECT * from report ORDER BY created_at ASC LIMIT ?
 const selectReportsByOld = `SELECT * FROM report WHERE status = ? ORDER BY created_at ASC LIMIT ?,?`;
 const selectReportsByNew = `SELECT * FROM report WHERE status = ? ORDER BY created_at DESC LIMIT ?,?`;
 
+const selectReportsByEmailAsc = `SELECT * from report WHERE user_id = ? ORDER BY created_at ASC LIMIT ?,?`;
+const selectReportsByEmailDesc = `SELECT * from report WHERE user_id = ? ORDER BY created_at DESC LIMIT ?,?`;
+const selectReportsByEmailOld = `SELECT * FROM report WHERE user_id = ? AND status = ? ORDER BY created_at ASC LIMIT ?,?`;
+const selectReportsByEmailNew = `SELECT * FROM report WHERE user_id = ? AND status = ? ORDER BY created_at DESC LIMIT ?,?`;
+
 const selectTotalReportCnt = `SELECT count(*) FROM report `;
 const selectTotalReportCntBy = `SELECT count(*) FROM report WHERE status = ? `;
+const selectEmailReportCnt = `SELECT count(*) FROM report WHERE user_id = ?`;
+const selectEmailReportCntBy = `SELECT count(*) FROM report WHERE status = ? AND user_id = ?`;
 
 export default {
   insertReport,
@@ -45,6 +52,12 @@ export default {
   selectReportsByAsc,
   selectReportsByNew,
   selectReportsByOld,
+  selectReportsByEmailAsc,
+  selectReportsByEmailDesc,
+  selectReportsByEmailOld,
+  selectReportsByEmailNew,
   selectTotalReportCnt,
   selectTotalReportCntBy,
+  selectEmailReportCnt,
+  selectEmailReportCntBy,
 };
