@@ -47,7 +47,9 @@ GROUP BY category_name;
 const selectReportCntByMonth = `SELECT DATE_FORMAT(violence_at, '%m') month, COUNT(*) count
 FROM report
 WHERE status = 'completed'
-GROUP BY month;
+GROUP BY month
+ORDER BY month ASC
+;
 `;
 // manner_grade별 cnt
 const selectLoluserCntByMannerGrade = `SELECT manner_grade, COUNT(*) count
