@@ -40,9 +40,7 @@ class reportService {
         (annotation) => annotation.description
       )[0];
       const messages = textArray.split("\n").map((line) => {
-        const match = line.match(
-          /\[(.*?)\] (\[(.*?)\] )?(.*?) \((.*?)\): (.*)/
-        );
+        const match = line.match(/(.*?) (\[(.*?)\] )?(.*?) \((.*?)\): (.*)/);
         if (match) {
           const timestamp = match[1];
           const isGlobal = match[3] !== undefined;
