@@ -66,8 +66,8 @@ reportController.get("/report/my", loginRequired, async (req, res) => {
   try {
     const emailId = req.currentEmailId;
     const { sort, status, currentPage } = req.query;
-    const rowPerpage = 10;
-    const currentPageNumber = parseInt(currentPage, 10);
+    const rowPerpage = 5;
+    const currentPageNumber = parseInt(currentPage, 5);
     const emailReportsCnt = await reportService.getEmailReportCntBy(
       status,
       emailId
