@@ -101,7 +101,6 @@ reportController.get("/report/my", loginRequired, async (req, res) => {
 reportController.get(
   "/admin/report/:reportId",
   loginRequired,
-  adminValidation,
   async (req, res) => {
     try {
       const reportId = req.params.reportId;
