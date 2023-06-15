@@ -40,7 +40,7 @@ LIMIT 10 `;
 const selectAbuseCntByCategory = `SELECT category_name categoryName, COUNT(*) count
 FROM abuse_score AS a
 JOIN report r ON a.report_id = r.id
-WHERE r.status = 'completed'
+WHERE r.status = 'completed' AND a.category_name <> 'clean'
 GROUP BY category_name;
 ;`;
 // 월별 신고 누적 횟수
@@ -60,7 +60,7 @@ GROUP BY manner_grade;
 const selectAbuseCategoryRankByCnt = `SELECT category_name, COUNT(*) totalReports
 FROM abuse_score a
 JOIN report r ON a.report_id = r.id
-WHERE r.status = 'completed'
+WHERE r.status = 'completed' AND a.category_name <> 'clean'
 GROUP BY category_name
 ORDER BY totalReports DESC;
 `;
@@ -72,6 +72,7 @@ WHERE report_id IN (
   FROM report
   WHERE attacker_id = ?
 )
+AND category_name != 'clean'
 GROUP BY category_name
 ORDER BY COUNT(*) DESC
 LIMIT 1;
@@ -94,7 +95,7 @@ FROM report r
 JOIN abuse_score a ON r.id = a.report_id
 JOIN lol_user l ON r.attacker_id = l.lol_id
 JOIN users u ON l.lol_id = u.lol_id
-WHERE u.email_id = ? AND r.status = 'completed'
+WHERE u.email_id = ? AND r.status = 'completed' AND a.category_name <> 'clean'
 GROUP BY r.attacker_id, a.category_name
 `;
 
@@ -188,6 +189,7 @@ FROM (
     INNER JOIN abuse_score a ON r.id = a.report_id
     WHERE lu.tier IN ('challenger', 'grandmaster', 'master', 'diamond', 'platinum', 'gold', 'silver', 'bronze', 'iron')
         AND r.status = 'completed' 
+        AND a.category_name <> 'clean'
     GROUP BY lu.tier, a.category_name
 ) t
 WHERE t.count = t.max_count
@@ -198,7 +200,7 @@ const selectSearchLolUserReportCntByCategory = `
 SELECT count(*) count, a.category_name categoryName
 FROM report r
 INNER JOIN abuse_score a ON r.id = a.report_id 
-WHERE attacker_id = ? AND status = 'completed'
+WHERE attacker_id = ? AND status = 'completed' AND a.category_name <> 'clean'
 GROUP BY a.category_name
 `;
 
