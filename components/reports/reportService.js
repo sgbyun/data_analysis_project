@@ -243,7 +243,10 @@ class reportService {
       await connection
         .promise()
         .query(reportModel.updateReportCount, [report.reportId]);
-      console.log(report);
+
+      await connection
+        .promise(0)
+        .query(reportModel.updateMannerGrade, [report.reportId]);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -263,7 +266,6 @@ class reportService {
 
   static async getReportsByEmailId(emailId) {
     try {
-      console.log(emailId);
       const result = await connection
         .promise()
         .query(reportModel.selectByEmail, [emailId]);
@@ -308,7 +310,6 @@ class reportService {
 
   static async updateCategory(reportCategory) {
     try {
-      console.log(reportCategory);
       await connection
         .promise()
         .query(reportModel.updateCategory, [

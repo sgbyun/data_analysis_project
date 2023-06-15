@@ -229,7 +229,7 @@ statsController.get(
   }
 );
 
-// 시간대별 욕설 당한 횟수
+// 시간대별 욕설 신고 당한 횟수
 statsController.get("/stats/reportCntByTime", async (req, res) => {
   try {
     const reportCntByTime = await statisticsService.getReportCntByTime();
@@ -240,6 +240,23 @@ statsController.get("/stats/reportCntByTime", async (req, res) => {
     res.status(500).json({ error });
   }
 });
+
+// 시간대별 욕설 한 횟수 (lolUser)
+statsController.get(
+  "/stats/reportCntByTimeByLolId/:lolId",
+  async (req, res) => {
+    try {
+      const lolId = req.params.lolId;
+      const reportCntByTimeByLolId =
+        await statisticsService.getReportCntByTimeByLolId(lolId);
+      logger.info("롤 유저의 시간대별 욕설한 횟수 불러오기 성공");
+      res.status(200).json(reportCntByTimeByLolId);
+    } catch (error) {
+      logger.error("롤유저의 시간대별 욕설한 횟수 불러오기 실패");
+      res.status(500).json({ error });
+    }
+  }
+);
 
 // 롤 티어별 욕설 분류 1위
 statsController.get("/stats/reportCategoryByTier", async (req, res) => {

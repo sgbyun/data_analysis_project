@@ -3,7 +3,7 @@ import { Router } from "express";
 import { lolUserService } from "./lolUserService.js";
 import { LolUser } from "./lolUser.js";
 import { loginRequired } from "../middlewares/loginRequired.js";
-import { logger } from "../utils/logger.js";
+import { logger } from "../utils/winston.js";
 
 const lolUserController = Router();
 

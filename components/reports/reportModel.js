@@ -19,7 +19,15 @@ SET report_count = (
     AND r.status = 'completed'
     AND ab.category_name <> 'clean'
 )
-WHERE lol_id = (SELECT lol_id FROM report WHERE id = ?)`;
+WHERE lol_id = (SELECT attacker_id FROM report WHERE id = ?)`;
+const updateMannerGrade = `UPDATE lol_user
+SET manner_grade = CASE
+    WHEN report_count >= 100 THEN 'gold'
+    WHEN report_count >= 50 THEN 'silver'
+    WHEN report_count >= 10 THEN 'bronze'
+    ELSE 'gentle'
+  END
+WHERE lol_id = (SELECT attacker_id FROM report WHERE id = ?)`;
 
 const selectReportsByAsc = `SELECT * from report ORDER BY created_at ASC LIMIT ?,?`;
 const selectReportsByOld = `SELECT * FROM report WHERE status = ? ORDER BY created_at ASC LIMIT ?,?`;
@@ -49,6 +57,7 @@ export default {
   selectCategoriesById,
   updateCategory,
   updateReportCount,
+  updateMannerGrade,
   selectReportsByAsc,
   selectReportsByNew,
   selectReportsByOld,

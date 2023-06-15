@@ -193,6 +193,16 @@ class statisticsService {
     return reportCntByTime;
   }
 
+  // 시간대별 욕설 한 횟수 (lolId)
+  static async getReportCntByTimeByLolId(lolId) {
+    const reportCntByTimeByLolId = (
+      await connection
+        .promise()
+        .query(statisticsModel.selectReportCntByTimeByLolId, [lolId])
+    )[0];
+    return reportCntByTimeByLolId;
+  }
+
   // 롤 티어별 욕설 분류 1위
   static async getReportCategoryByTier() {
     const reportCategoryByTier = (

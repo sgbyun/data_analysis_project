@@ -150,6 +150,34 @@ GROUP BY hourRange
 ORDER BY MIN(EXTRACT(HOUR FROM violence_at))
 `;
 
+// 시간대별 욕설 신고 당한 횟수 (lolId)
+const selectReportCntByTimeByLolId = `SELECT
+COUNT(*) AS count,
+CASE
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 0 AND 1 THEN '0-2'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 2 AND 3 THEN '2-4'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 4 AND 5 THEN '4-6'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 6 AND 7 THEN '6-8'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 8 AND 9 THEN '8-10'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 10 AND 11 THEN '10-12'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 12 AND 13 THEN '12-14'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 14 AND 15 THEN '14-16'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 16 AND 17 THEN '16-18'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 18 AND 19 THEN '18-20'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 20 AND 21 THEN '20-22'
+    WHEN EXTRACT(HOUR FROM r.violence_at) BETWEEN 22 AND 23 THEN '22-24'
+END AS hourRange
+FROM report r
+JOIN abuse_score a ON r.id = a.report_id
+WHERE
+r.status = 'completed'
+AND r.attacker_id = ?
+AND EXTRACT(HOUR FROM r.violence_at) BETWEEN 0 AND 23
+AND a.category_name <> 'clean'
+GROUP BY hourRange
+ORDER BY MIN(EXTRACT(HOUR FROM r.violence_at));
+`;
+
 // 롤 티어별 욕설 분류 1위 값
 const selectReportCategoryByTier = `
 SELECT t.tier tier, t.category_name categoryName, t.max_count maxCount
@@ -200,6 +228,7 @@ export default {
   selectUserReportingCnt,
   selectUserReportedCnt,
   selectReportCntByTime,
+  selectReportCntByTimeByLolId,
   selectReportCategoryByTier,
   selectSearchLolUserReportCntByCategory,
 };
