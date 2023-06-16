@@ -37,7 +37,7 @@ class userService {
   static async changePassword(user) {
     try {
       const queryUpdate = userModel.updatePassword;
-      const result = await connection
+      await connection
         .promise()
         .query(queryUpdate, [user.password, user.emailId]);
       const queryDelete = userModel.deleteKey;
@@ -50,8 +50,8 @@ class userService {
   static async getUsers() {
     try {
       const query = userModel.selectUser;
-      const result = await connection.promise().query(query);
-      return result[0];
+      const userInfo = await connection.promise().query(query);
+      return userInfo[0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -60,8 +60,8 @@ class userService {
   static async getUserOne({ emailId }) {
     try {
       const query = userModel.selectUserOne;
-      const result = await connection.promise().query(query, [emailId]);
-      return result[0][0];
+      const userInfo = await connection.promise().query(query, [emailId]);
+      return userInfo[0][0];
     } catch (error) {
       throw new Error(error.message);
     }

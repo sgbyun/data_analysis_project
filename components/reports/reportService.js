@@ -95,8 +95,8 @@ class reportService {
   static async getReportByEmail({ userId }) {
     try {
       const query = reportModel.selectByEmail;
-      const result = await connection.promise().query(query, [userId]);
-      return result[1][0];
+      const reportByEmailId = await connection.promise().query(query, [userId]);
+      return reportByEmailId[1][0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -104,8 +104,10 @@ class reportService {
 
   // 전체 신고목록 최신순 조회
   static async getAllReports() {
-    const result = await connection.promise().query(reportModel.selectReports);
-    return result[0];
+    const allReports = await connection
+      .promise()
+      .query(reportModel.selectReports);
+    return allReports[0];
   }
 
   // status별 전체 신고 목록
@@ -148,35 +150,35 @@ class reportService {
   static async getReportsBy(startIndex, rowPerPage, sort, status) {
     if (sort == "old") {
       if (status == "all") {
-        const result = await connection
+        const reportsByOldByAll = await connection
           .promise()
           .query(reportModel.selectReportsByAsc, [startIndex, rowPerPage]);
-        return result[0];
+        return reportsByOldByAll[0];
       } else {
-        const result = await connection
+        const reportsByOldBy = await connection
           .promise()
           .query(reportModel.selectReportsByOld, [
             status,
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return reportsByOldBy[0];
       }
     } else if (sort == "new") {
       if (status == "all") {
-        const result = await connection
+        const reportsByNewByAll = await connection
           .promise()
           .query(reportModel.selectReports, [startIndex, rowPerPage]);
-        return result[0];
+        return reportsByNewByAll[0];
       } else {
-        const result = await connection
+        const resultByNewBy = await connection
           .promise()
           .query(reportModel.selectReportsByNew, [
             status,
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return resultByNewBy[0];
       }
     }
   }
@@ -190,16 +192,16 @@ class reportService {
   ) {
     if (sort == "old") {
       if (status == "all") {
-        const result = await connection
+        const reportsByOldByAllByEmailId = await connection
           .promise()
           .query(reportModel.selectReportsByEmailAsc, [
             emailId,
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return reportsByOldByAllByEmailId[0];
       } else {
-        const result = await connection
+        const reportsByOldByEmailId = await connection
           .promise()
           .query(reportModel.selectReportsByEmailOld, [
             emailId,
@@ -207,20 +209,20 @@ class reportService {
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return reportsByOldByEmailId[0];
       }
     } else if (sort == "new") {
       if (status == "all") {
-        const result = await connection
+        const reportsByNewByAllByEmailId = await connection
           .promise()
           .query(reportModel.selectReportsByEmailDesc, [
             emailId,
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return reportsByNewByAllByEmailId[0];
       } else {
-        const result = await connection
+        const reportsByNewByEmailId = await connection
           .promise()
           .query(reportModel.selectReportsByEmailNew, [
             emailId,
@@ -228,7 +230,7 @@ class reportService {
             startIndex,
             rowPerPage,
           ]);
-        return result[0];
+        return reportsByNewByEmailId[0];
       }
     }
   }
@@ -255,10 +257,10 @@ class reportService {
   // 신고 아이디로 조회 (관리자)
   static async getReportById(report) {
     try {
-      const result = await connection
+      const reportById = await connection
         .promise()
         .query(reportModel.selectById, [report.reportId]);
-      return result[0][0];
+      return reportById[0][0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -266,10 +268,10 @@ class reportService {
 
   static async getReportsByEmailId(emailId) {
     try {
-      const result = await connection
+      const reportsByEmailId = await connection
         .promise()
         .query(reportModel.selectByEmail, [emailId]);
-      return result[0];
+      return reportsByEmailId[0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -277,10 +279,10 @@ class reportService {
 
   static async getCategoryByreportId(report) {
     try {
-      const result = await connection
+      const CategoryByReportId = await connection
         .promise()
         .query(reportModel.selectCategoriesById, [report.reportId]);
-      return result[0];
+      return CategoryByReportId[0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -288,10 +290,10 @@ class reportService {
 
   static async getPhotoByreportId(report) {
     try {
-      const result = await connection
+      const photoByReportId = await connection
         .promise()
         .query(reportModel.selectPhotoById, [report.reportId]);
-      return result[0][0].path;
+      return photoByReportId[0][0].path;
     } catch (error) {
       throw new Error(error.message);
     }

@@ -44,8 +44,10 @@ class lolUserService {
   static async getLolUser(Loluser) {
     try {
       const query = lolUserModel.selectLolUser;
-      const result = await connection.promise().query(query, [Loluser.lolId]);
-      return result[0][0];
+      const lolUserData = await connection
+        .promise()
+        .query(query, [Loluser.lolId]);
+      return lolUserData[0][0];
     } catch (error) {
       throw new Error(error.message);
     }
@@ -54,8 +56,8 @@ class lolUserService {
   static async getLolUserByEmailId(userId) {
     try {
       const query = lolUserModel.selectLolUserByEmailId;
-      const result = await connection.promise().query(query, [userId]);
-      return result[0][0];
+      const lolUserData = await connection.promise().query(query, [userId]);
+      return lolUserData[0][0];
     } catch (error) {
       throw new Error(error.message);
     }
