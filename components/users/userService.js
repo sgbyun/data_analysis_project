@@ -2,6 +2,7 @@ import { connection } from "../../index.js";
 import userModel from "../users/userModel.js";
 import jwt from "jsonwebtoken";
 import { verifyPassword } from "../utils/verifyPassword.js";
+import { logger } from "../utils/winston.js";
 
 class userService {
   static async addUser(user) {
@@ -68,7 +69,7 @@ class userService {
 
   static async setUser(user) {
     try {
-      console.log("Service user", user);
+      logger.info("Service user", user);
       const query = userModel.updateUser;
       await connection
         .promise()
@@ -121,7 +122,7 @@ class userService {
   static async addKey(emailId, authKey) {
     try {
       const query = userModel.insertKey;
-      console.log(emailId, authKey);
+      logger.info(emailId, authKey);
       await connection.promise().query(query, [emailId, authKey]);
     } catch (error) {
       throw new Error(error.message);

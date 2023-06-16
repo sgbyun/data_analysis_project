@@ -127,10 +127,6 @@ statsController.get(
       const lolId = req.params.lolId;
       const abuseCntByAttackerUser =
         await statisticsService.getAbuseCntByAttackerUser(lolId);
-      console.log(
-        "statsController abuseCntByAttackerUser : ",
-        abuseCntByAttackerUser
-      );
       logger.info(
         "가해자 별로 가장 많이 신고된 언어폭력 종류 불러오기 성공",
         abuseCntByAttackerUser

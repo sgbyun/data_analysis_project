@@ -5,7 +5,6 @@ import { logger } from "./winston.js";
 import bcrypt from "bcrypt";
 
 const registerController = async (req, res) => {
-  console.log(req.body);
   try {
     const {
       emailId,

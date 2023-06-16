@@ -1,5 +1,6 @@
 import { connection } from "../../index.js";
 import statisticsModel from "./statisticsModel.js";
+import { logger } from "../utils/winston.js";
 
 class statisticsService {
   // 총 유저의 수
@@ -52,7 +53,7 @@ class statisticsService {
       await connection.promise().query(statisticsModel.selectTierReportCnt)
     )[0];
 
-    console.log(reportTierCnt);
+    logger.info(reportTierCnt);
 
     return reportTierCnt;
   }
@@ -63,7 +64,7 @@ class statisticsService {
       await connection.promise().query(statisticsModel.selecteportLoluserTopTen)
     )[0];
 
-    console.log(reportLoluserTopTen);
+    logger.info(reportLoluserTopTen);
 
     return reportLoluserTopTen;
   }
@@ -74,7 +75,7 @@ class statisticsService {
       await connection.promise().query(statisticsModel.selectAbuseCntByCategory)
     )[0];
 
-    console.log(abuseCntByCategory);
+    logger.info(abuseCntByCategory);
 
     return abuseCntByCategory;
   }
@@ -85,7 +86,7 @@ class statisticsService {
       await connection.promise().query(statisticsModel.selectReportCntByMonth)
     )[0];
 
-    console.log(reportCntByMonth);
+    logger.info(reportCntByMonth);
 
     return reportCntByMonth;
   }
@@ -98,7 +99,7 @@ class statisticsService {
         .query(statisticsModel.selectLoluserCntByMannerGrade)
     )[0];
 
-    console.log(loluserCntByMannerGrade);
+    logger.info(loluserCntByMannerGrade);
 
     return loluserCntByMannerGrade;
   }
@@ -111,7 +112,7 @@ class statisticsService {
         .query(statisticsModel.selectAbuseCategoryRankByCnt)
     )[0];
 
-    console.log(abuseCategoryRankByCnt);
+    logger.info(abuseCategoryRankByCnt);
 
     return abuseCategoryRankByCnt;
   }
@@ -124,7 +125,7 @@ class statisticsService {
         .query(statisticsModel.selectAbuseCntByAttackerUser, [lolId])
     )[0];
 
-    console.log(abuseCntByAttackerUser);
+    logger.info(abuseCntByAttackerUser);
 
     return abuseCntByAttackerUser;
   }
@@ -136,7 +137,7 @@ class statisticsService {
         .query(statisticsModel.selectAbuseCntByMonth, [lolId])
     )[0];
 
-    console.log(abuseCntByMonth);
+    logger.info(abuseCntByMonth);
 
     return abuseCntByMonth;
   }
@@ -149,7 +150,7 @@ class statisticsService {
         .query(statisticsModel.selectUserReportCntByCategory, [emailId])
     )[0];
 
-    console.log(userReportecCntByCategory);
+    logger.info(userReportecCntByCategory);
 
     return userReportecCntByCategory;
   }
